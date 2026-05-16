@@ -25,8 +25,6 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.swing.ImageIcon;
 import javax.swing.text.Document;
-import sun.audio.AudioPlayer;
-import sun.audio.AudioStream;
 
 enum GameTypes      {STANDARD4(0), STANDARD6_NO_ENDTURNBLD(1), STANDARD6_ENDTURNBLD(2);
                      private int value;
@@ -296,7 +294,7 @@ public class GameRules implements GameMouseNotifyInterf
         players.clear();
         plyrStatsRoundList.clear();
         
-        gameWindow.playerInfo.removeAll();
+        gameWindow.clearPlayerTabs();
                         
         if (plyr1 != PlayerTypes.NULL)
             players.add(new Player(plyr1, PlayerColTypes.BLUE.name(),   PlayerColTypes.BLUE,   gameWindow.gameBoard, this,  new ResBuildPanel(), skillLevel, AIPlayList.removeFirst(), cbp[0]));
@@ -334,7 +332,9 @@ public class GameRules implements GameMouseNotifyInterf
                 gameWindow.playerInfo.setSelectedComponent(p.resPanelInfo);
                 break;
             }         
-        }                           
+        }
+
+        gameWindow.resetPlayerTabLayout();
 
         // Set the initial players and start index        
         players      = playOrder;                
@@ -1643,19 +1643,12 @@ thisPlayer.newDevCards.add (new ResourceCard(ResCardTypes.DEV_ROADBUILD));
                                        
         try
         {
-
-            // Create an AudioStream object from the input stream.
-            AudioStream as = new AudioStream(getClass().getResourceAsStream(files[act.toValue()]));
-            AudioPlayer.player.start(as);
-/****
-            AudioInputStream as = AudioSystem.getAudioInputStream (getClass().getResourceAsStream(files[act.toValue()]));
-
-            DataLine.Info info = new DataLine.Info(Clip.class, as.getFormat()); 
-            Clip          clip = (Clip) AudioSystem.getLine(info); 
-            
-            clip.open(as); 
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(
+                    getClass().getResourceAsStream(files[act.toValue()]));
+            DataLine.Info info = new DataLine.Info(Clip.class, audioStream.getFormat());
+            Clip clip = (Clip) AudioSystem.getLine(info);
+            clip.open(audioStream);
             clip.start();
- */
         } catch (Exception e) {}  
     }
     

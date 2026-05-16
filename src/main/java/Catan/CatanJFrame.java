@@ -135,8 +135,77 @@ public class CatanJFrame extends javax.swing.JFrame
             }
 
             @Override
+            protected void paintTabArea(Graphics g, int tabPlacement, int selectedIndex)
+            {
+                int tabCount = tabPane.getTabCount();
+                if (tabCount == 0 || rects == null || rects.length == 0)
+                {
+                    return;
+                }
+
+                Rectangle iconRect = new Rectangle();
+                Rectangle textRect = new Rectangle();
+                Rectangle clipRect = g.getClipBounds();
+
+                int safeSelected = selectedIndex;
+                if (safeSelected < 0 || safeSelected >= tabCount)
+                {
+                    safeSelected = tabPane.getSelectedIndex();
+                }
+                if (safeSelected < 0 || safeSelected >= tabCount)
+                {
+                    safeSelected = 0;
+                }
+
+                for (int i = runCount - 1; i >= 0; i--)
+                {
+                    if (i >= tabRuns.length)
+                    {
+                        continue;
+                    }
+                    int start = tabRuns[i];
+                    if (start < 0 || start >= tabCount)
+                    {
+                        continue;
+                    }
+                    int next = tabRuns[(i == runCount - 1) ? 0 : i + 1];
+                    int end = (next != 0 ? next - 1 : tabCount - 1);
+                    if (end >= tabCount)
+                    {
+                        end = tabCount - 1;
+                    }
+                    if (end < start)
+                    {
+                        continue;
+                    }
+                    for (int j = start; j <= end; j++)
+                    {
+                        if (j < 0 || j >= tabCount || j >= rects.length)
+                        {
+                            continue;
+                        }
+                        if (j != safeSelected && rects[j].intersects(clipRect))
+                        {
+                            paintTab(g, tabPlacement, rects, j, iconRect, textRect);
+                        }
+                    }
+                }
+
+                if (safeSelected >= 0 && safeSelected < tabCount && safeSelected < rects.length
+                        && rects[safeSelected].intersects(clipRect))
+                {
+                    paintTab(g, tabPlacement, rects, safeSelected, iconRect, textRect);
+                }
+            }
+
+            @Override
             protected void paintTabBackground(Graphics g, int tabPlacement, int tabIndex, int x, int y, int w, int h, boolean isSelected)
             {
+                if (tabIndex < 0 || tabIndex >= tabPane.getTabCount())
+                {
+                    super.paintTabBackground(g, tabPlacement, tabIndex, x, y, w, h, isSelected);
+                    return;
+                }
                 try
                 {
                     ResBuildPanel rbp = (ResBuildPanel) playerInfo.getComponent(tabIndex);
@@ -953,6 +1022,28 @@ for (int c = 0; c < 50; c++)
     public int diceGetValue()
     {
         return dieLeft.currValue + dieRight.currValue;
+    }
+
+    /** Removes all player tabs without leaving stale tab-layout state in the UI delegate. */
+    public void clearPlayerTabs()
+    {
+        while (playerInfo.getTabCount() > 0)
+        {
+            playerInfo.removeTabAt(playerInfo.getTabCount() - 1);
+        }
+        resetPlayerTabLayout();
+    }
+
+    /** Forces the tabbed pane UI to recalculate tab geometry after tab count changes. */
+    public void resetPlayerTabLayout()
+    {
+        playerInfo.invalidate();
+        if (playerInfo.getTabCount() > 0 && playerInfo.getSelectedIndex() >= playerInfo.getTabCount())
+        {
+            playerInfo.setSelectedIndex(0);
+        }
+        playerInfo.revalidate();
+        playerInfo.repaint();
     }
 
     // ---------------------------------------------------------------------------

@@ -867,25 +867,25 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
             switch (boardType)
             {
                 case STANDARD4:                                
-                    nl.add(new Integer(2)); nl.add(new Integer(3)); nl.add(new Integer(3)); nl.add(new Integer(4));
-                    nl.add(new Integer(4)); nl.add(new Integer(5)); nl.add(new Integer(5)); nl.add(new Integer(6));
-                    nl.add(new Integer(6)); nl.add(new Integer(8)); nl.add(new Integer(8)); nl.add(new Integer(9));
-                    nl.add(new Integer(9)); nl.add(new Integer(10));nl.add(new Integer(10));nl.add(new Integer(11));
-                    nl.add(new Integer(11));nl.add(new Integer(12));
+                    nl.add(Integer.valueOf(2)); nl.add(Integer.valueOf(3)); nl.add(Integer.valueOf(3)); nl.add(Integer.valueOf(4));
+                    nl.add(Integer.valueOf(4)); nl.add(Integer.valueOf(5)); nl.add(Integer.valueOf(5)); nl.add(Integer.valueOf(6));
+                    nl.add(Integer.valueOf(6)); nl.add(Integer.valueOf(8)); nl.add(Integer.valueOf(8)); nl.add(Integer.valueOf(9));
+                    nl.add(Integer.valueOf(9)); nl.add(Integer.valueOf(10));nl.add(Integer.valueOf(10));nl.add(Integer.valueOf(11));
+                    nl.add(Integer.valueOf(11));nl.add(Integer.valueOf(12));
                     break;
                     
                case STANDARD6_NO_ENDTURNBLD:
                case STANDARD6_ENDTURNBLD:                           
-                    nl.add(new Integer(2)); nl.add(new Integer(2)); 
-                    nl.add(new Integer(3)); nl.add(new Integer(3)); nl.add(new Integer(3));
-                    nl.add(new Integer(4)); nl.add(new Integer(4)); nl.add(new Integer(4));
-                    nl.add(new Integer(5)); nl.add(new Integer(5)); nl.add(new Integer(5)); 
-                    nl.add(new Integer(6)); nl.add(new Integer(6)); nl.add(new Integer(6));
-                    nl.add(new Integer(8)); nl.add(new Integer(8)); nl.add(new Integer(8));
-                    nl.add(new Integer(9)); nl.add(new Integer(9)); nl.add(new Integer(9)); 
-                    nl.add(new Integer(10));nl.add(new Integer(10));nl.add(new Integer(10));
-                    nl.add(new Integer(11));nl.add(new Integer(11));nl.add(new Integer(11));
-                    nl.add(new Integer(12));nl.add(new Integer(12));
+                    nl.add(Integer.valueOf(2)); nl.add(Integer.valueOf(2)); 
+                    nl.add(Integer.valueOf(3)); nl.add(Integer.valueOf(3)); nl.add(Integer.valueOf(3));
+                    nl.add(Integer.valueOf(4)); nl.add(Integer.valueOf(4)); nl.add(Integer.valueOf(4));
+                    nl.add(Integer.valueOf(5)); nl.add(Integer.valueOf(5)); nl.add(Integer.valueOf(5)); 
+                    nl.add(Integer.valueOf(6)); nl.add(Integer.valueOf(6)); nl.add(Integer.valueOf(6));
+                    nl.add(Integer.valueOf(8)); nl.add(Integer.valueOf(8)); nl.add(Integer.valueOf(8));
+                    nl.add(Integer.valueOf(9)); nl.add(Integer.valueOf(9)); nl.add(Integer.valueOf(9)); 
+                    nl.add(Integer.valueOf(10));nl.add(Integer.valueOf(10));nl.add(Integer.valueOf(10));
+                    nl.add(Integer.valueOf(11));nl.add(Integer.valueOf(11));nl.add(Integer.valueOf(11));
+                    nl.add(Integer.valueOf(12));nl.add(Integer.valueOf(12));
                     break;
             }
             
