@@ -1,0 +1,195 @@
+package Catan;
+
+import java.awt.Frame;
+import java.awt.Point;
+import javax.swing.JComponent;
+
+/**
+ *
+ * @author  Steven De Toni
+ * 
+ *  April 2008
+ */
+
+enum StealCardModes {SELECT_PLAYER, STEAL_CARD};
+
+public class StealPlyrResCardJDialog extends javax.swing.JDialog
+{
+    public CatanJFrame    gameWindow   = null;
+    public Player         robberPlayer = null;
+    public boolean        playerSelect = true;
+    public Tile           robberTile   = null;
+    public StealCardModes mode         = StealCardModes.SELECT_PLAYER;  
+    public boolean        completedOK  = false;
+    
+    /** Creates new form StealPlyrResCardJDialog */
+    public StealPlyrResCardJDialog (java.awt.Frame parent, boolean modal)
+    {
+        super (parent, modal);
+        initComponents ();
+        
+        centre (parent);
+    }
+
+    public void centre (Frame parent)
+    {
+        if (parent != null)
+        {
+            Point pp = parent.getLocationOnScreen();
+            
+            this.setLocation((pp.x + parent.getWidth()/2) - (this.getWidth()/2), 
+                             (pp.y + parent.getHeight()/2) - (this.getHeight()/2));
+        }
+    }      
+    
+    public void centreToPanel (JComponent p)
+    {
+        if (p != null)
+        {
+            Point pp = p.getLocationOnScreen();
+            
+            this.setLocation((pp.x + p.getWidth()/2) - (this.getWidth()/2), 
+                             (pp.y + p.getHeight()/2) - (this.getHeight()/2));
+        }
+    }  
+    
+    public void assignThisPlayer (Tile robberTile, Player robberPlayer, CatanJFrame gameWindow)
+    {
+        this.robberTile   = robberTile;
+        this.robberPlayer = robberPlayer;
+        this.gameWindow   = gameWindow;                
+        mode              = StealCardModes.SELECT_PLAYER;
+        
+        this.render ();
+    }
+        
+    public void render ()
+    {
+        plyrInfo.removeAll();
+        
+        switch (mode)
+        {
+            case SELECT_PLAYER:
+                boolean  b = false,r = false,w = false,o = false,g = false,y = false;
+                   
+                for (BuildPoint bp:robberTile.buildJoins)
+                {
+                    if ((bp.owner != robberPlayer) && (bp.owner != null))
+                    {
+                        switch (bp.owner.col)
+                        {
+                            case GREEN:                    
+                                if (g == false)
+                                {
+                                    StealCardJPanel s = new StealCardJPanel(bp.owner, robberPlayer, this);
+                                    if (s.hasCards () != false)                                    
+                                        plyrInfo.add(bp.owner.name, s);
+                                    g = true;
+                                }
+                                break;
+                                
+                            case YELLOW:
+                                if (y == false)
+                                {
+                                    StealCardJPanel s = new StealCardJPanel(bp.owner, robberPlayer, this);
+                                    if (s.hasCards () != false)                                    
+                                        plyrInfo.add(bp.owner.name, s);
+                                    y = true;
+                                }
+                                break;
+                                
+                            case BLUE:                    
+                                if (b == false)
+                                {
+                                    StealCardJPanel s = new StealCardJPanel(bp.owner, robberPlayer, this);
+                                    if (s.hasCards () != false)                                    
+                                        plyrInfo.add(bp.owner.name, s);
+                                    b = true;
+                                }
+                                break;
+                                
+                            case RED:
+                                if (r == false)
+                                {
+                                    StealCardJPanel s = new StealCardJPanel(bp.owner, robberPlayer, this);
+                                    if (s.hasCards() != false)
+                                        plyrInfo.add(bp.owner.name, s);
+                                    r = true;
+                                }
+                                break;
+                                
+                            case WHITE:
+                                if (w == false)
+                                {
+                                    StealCardJPanel s = new StealCardJPanel(bp.owner, robberPlayer, this);
+                                    if (s.hasCards() != false)
+                                        plyrInfo.add(bp.owner.name, s);
+                                    w = true;
+                                }
+                                break;
+                                
+                            case ORANGE:
+                                if (o == false)
+                                {
+                                    StealCardJPanel s = new StealCardJPanel(bp.owner, robberPlayer, this);
+                                    if (s.hasCards() != false)
+                                        plyrInfo.add(bp.owner.name, s);
+                                    o = true;
+                                }
+                                break;
+                        }                                
+                    }
+                }
+                break;
+                
+            case STEAL_CARD:
+                break;            
+        }       
+    }
+        
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents()
+    {
+
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        plyrInfo = new javax.swing.JTabbedPane();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setUndecorated(true);
+
+        jPanel1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jPanel1.setLayout(new java.awt.BorderLayout());
+
+        jLabel1.setText("Select a card from one of the following players");
+        jPanel1.add(jLabel1, java.awt.BorderLayout.PAGE_START);
+        jPanel1.add(plyrInfo, java.awt.BorderLayout.CENTER);
+
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+        );
+
+        java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        setBounds((screenSize.width-281)/2, (screenSize.height-198)/2, 281, 198);
+    }// </editor-fold>//GEN-END:initComponents
+    
+    
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
+    public javax.swing.JTabbedPane plyrInfo;
+    // End of variables declaration//GEN-END:variables
+    
+}
