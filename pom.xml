@@ -24,6 +24,12 @@
             <artifactId>swing-layout</artifactId>
             <version>1.0.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.11.3</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -39,6 +45,15 @@
                         <arg>-Xlint:removal</arg>
                     </compilerArgs>
                     <showDeprecation>true</showDeprecation>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+                <configuration>
+                    <!-- headless for the AWT Polygon-based board geometry -->
+                    <argLine>-Djava.awt.headless=true</argLine>
                 </configuration>
             </plugin>
             <plugin>

@@ -1161,6 +1161,15 @@ public class Player
     public LinkedList<Road>       builtRoadObjs     = new LinkedList<Road>();
     static BufferedImage          plyrImgs[]        = null;
 
+    /**
+     * Bare constructor used only by unit tests for the road-length logic. It runs
+     * the field initialisers (so collections like {@link #builtRoadObjs} are ready)
+     * but skips the heavy Swing/image setup of the real constructor.
+     */
+    Player()
+    {
+    }
+
     public Player(PlayerTypes type,
             String                name,
             PlayerColTypes        col,
@@ -1337,6 +1346,65 @@ public class Player
             }
         }
 
+        // The search above only starts from empty "tip" segments next to our network.
+        // A road component with no such tip - a closed loop, or a run whose both ends
+        // are boxed in by foreign roads - is never reached and would score 0. Collect
+        // the roads already covered above, then measure any leftover component directly
+        // by treating each of its roads as a trail end.
+        LinkedList<Road> covered = new LinkedList<Road>();
+        for (RoadInfo ri : endRoadPoints)
+        {
+            for (Road r : ri.roadGroup)
+            {
+                if (covered.contains(r) == false)
+                {
+                    covered.add(r);
+                }
+            }
+        }
+
+        for (Road r : this.builtRoadObjs)
+        {
+            if (covered.contains(r))
+            {
+                continue;
+            }
+
+            // Discover the whole component reachable from r. The DFS never crosses
+            // a foreign building, so this is exactly one continuous-road group.
+            LinkedList<Road> component = new LinkedList<Road>();
+            component.add(r);
+            for (BuildPoint bp : r.buildJoins)
+            {
+                LinkedList<Road> path = new LinkedList<Road>();
+                path.add(r);
+                roadLen(r, bp, this, component, path);
+            }
+
+            // The longest trail must start at one of the component's roads, so try
+            // every road as a trail end (from both build points) and keep the best.
+            // Starting from a middle road would only yield one arm, not their sum.
+            for (Road start : component)
+            {
+                if (covered.contains(start))
+                {
+                    continue;
+                }
+                covered.add(start);
+
+                for (BuildPoint bp : start.buildJoins)
+                {
+                    LinkedList<Road> path = new LinkedList<Road>();
+                    path.add(start);
+                    int len = roadLen(start, bp, this, null, path);
+                    if (len > maxRLen)
+                    {
+                        maxRLen = len;
+                    }
+                }
+            }
+        }
+
         Debug("CalcRoadLens:" + this.name + " max road len of " + maxRLen, DebugLevel.COMPLETE);
         Debug("CalcRoadLens:" + this.name + " has " + buildDiffRoadGroups(endRoadPoints, null, null) + " different road groupings", DebugLevel.COMPLETE);
 
@@ -1365,16 +1433,13 @@ public class Player
                 continue;
             }           
             // don't count road length through other players settlements/cities other than your own!
-            else if (startBuildPoint != null)                     
+            // rbp is the vertex we would extend the road *through*, so the foreign
+            // building that breaks the road must be tested on rbp (not on the vertex
+            // we arrived from). Checking startBuildPoint here let a road pass straight
+            // through an opponent's settlement/city, over-counting the longest road.
+            else if (rbp.owner != null && rbp.owner != thisOwner)
             {
-                if (startBuildPoint.owner != null)
-                {
-                    if (startBuildPoint.owner != thisOwner)
-                    {
-                        len--;
-                        continue; 
-                    }
-                }
+                continue;
             }
  
             Iterator rjItems = rbp.roadJoins.iterator();
