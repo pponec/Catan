@@ -14,7 +14,8 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Random;
+import java.util.random.RandomGenerator;
+import java.util.random.RandomGeneratorFactory;
 import javax.imageio.ImageIO;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -57,6 +58,13 @@ public class GameBoardJPanel extends javax.swing.JPanel
     public boolean detailLevelHigh = true;
     CatanJFrame    gameWindow = null;
 
+    // Single shared, high-quality generator for board generation (resource/port
+    // tiles, dice numbers, initial robber, background). Reused instead of
+    // allocating a new Random in each method. Note: board setup also runs at
+    // panel construction time, before any GameRules exists, so this cannot defer
+    // to GameRules.rand.
+    private final RandomGenerator rand = RandomGeneratorFactory.of("L64X128MixRandom").create();
+
     // ----- High-Light Build/Selection ----
     public boolean hlAssistActive  = true;
     boolean        hlRender        = false;
@@ -77,7 +85,7 @@ public class GameBoardJPanel extends javax.swing.JPanel
         // Load some images
         if (bgImage == null)
         {
-            Random r = new Random();
+            final RandomGenerator r = this.rand;
             
             String files[] = {"/Catan/Resource/bg_3.jpg", "/Catan/Resource/bg_4.jpg",
                               "/Catan/Resource/bg_5.gif", "/Catan/Resource/bg_6.gif"
@@ -795,7 +803,7 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
     
     public Tile setRobberInitLoc ()
     {
-        Random r = new Random();
+        final RandomGenerator r = this.rand;
         
         // Clear current robber settings
         int whichTile = 0;
@@ -834,7 +842,7 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
     
     public void randomiseEvenlyDiceRolls (GameTypes boardType, GameVariants gameVariant)
     {
-        Random r = new Random();
+        final RandomGenerator r = this.rand;
 
         // Dice Rolls ...
         //                        2  3  4  5  6  7  8  9 10 11 12
@@ -923,11 +931,11 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
                                 switch (t.type)
                                 {                                    
                                     case VAR_VOLCANO:
-                                        if (r.nextInt(12) <= 6)
+                                        if (r.nextBoolean())            // 50/50 between low (4-6) and high (8-10) values
                                             dval = 4 + r.nextInt(3);
                                         else
-                                            dval = 8 + r.nextInt(3);                                        
-                                        break;               
+                                            dval = 8 + r.nextInt(3);
+                                        break;
                                         
                                     default:
                                         idx  = r.nextInt(nl.size());
@@ -999,7 +1007,7 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
    
     public void randomiseEvenlyResourceTiles ()
     {
-        Random r = new Random();
+        final RandomGenerator r = this.rand;
         LinkedList<TileTypes> tileTypesList = new LinkedList<TileTypes>();
 
         for (int wholeRetry = 1; wholeRetry <= 15; wholeRetry++)
@@ -1089,7 +1097,7 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
     public void randomiseCatanScene(boolean evenlyRandResTiles, boolean evenlyRandPortTiles)
     {
         // Randomise dice numbers on tiles... 
-        Random r = new Random();        
+        final RandomGenerator r = this.rand;        
 
         if (evenlyRandResTiles != false)
             randomiseEvenlyResourceTiles ();   

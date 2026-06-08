@@ -4,8 +4,20 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Random;
+import java.util.random.RandomGenerator;
+import java.util.random.RandomGeneratorFactory;
 import javax.imageio.ImageIO;
+
+/**
+ * Single shared, high-quality generator for the package-level enum helpers
+ * below (random default AI type / build priority). Created once and reused,
+ * rather than allocating a new Random per call.
+ */
+final class CompRandom
+{
+    static final RandomGenerator RND = RandomGeneratorFactory.of("L64X128MixRandom").create();
+    private CompRandom() {}
+}
 
 /**
  *
@@ -26,8 +38,7 @@ enum CompAIType
     
     static CompAIType rand()
     {
-        Random r = new Random();
-        switch (r.nextInt(2))
+        switch (CompRandom.RND.nextInt(2))
         {
             case 0: return HUERISTIC;
             case 1: return HIGHSCORE;
@@ -166,19 +177,17 @@ enum CompBuildPriorities {BUILD_PRI_1(0), BUILD_PRI_2(1), BUILD_PRI_3(2),BUILD_P
     
     static CompBuildPriorities randBest()
     {
-        Random r = new Random();
-        switch (r.nextInt(2))
+        switch (CompRandom.RND.nextInt(2))
         {
             case 0: return BUILD_PRI_1;
             case 1: return BUILD_PRI_4;
         }
-        return BUILD_PRI_4;        
+        return BUILD_PRI_4;
     }
-    
+
     static CompBuildPriorities rand()
     {
-        Random r = new Random();
-        switch (r.nextInt(3))
+        switch (CompRandom.RND.nextInt(4))
         {
             case 0: return BUILD_PRI_1;
             case 1: return BUILD_PRI_2;

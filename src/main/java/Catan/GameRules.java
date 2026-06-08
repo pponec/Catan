@@ -18,7 +18,8 @@ import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
-import java.util.Random;
+import java.util.random.RandomGenerator;
+import java.util.random.RandomGeneratorFactory;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -177,7 +178,9 @@ public class GameRules implements GameMouseNotifyInterf
     public String                   log           = "";
     
     public int                      playOrderIdx = 0;
-    public Random                   rand         = new Random();
+    // Single shared, high-quality generator for all in-game random events
+    // (dev-card shuffle, play order, AI assignment, robber steal, dev-card draw).
+    public final RandomGenerator    rand         = RandomGeneratorFactory.of("L64X128MixRandom").create();
     public CatanJFrame              gameWindow   = null;        
     public GamePhaseTypes           gamePhase    = GamePhaseTypes.NULL;    
     public LinkedList<ResourceCard> gameDevCards = new LinkedList<ResourceCard>();

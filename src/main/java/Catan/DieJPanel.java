@@ -4,7 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.util.Random;
+import java.util.random.RandomGenerator;
+import java.util.random.RandomGeneratorFactory;
 
 /**
  *
@@ -15,7 +16,7 @@ import java.util.Random;
 
 public class DieJPanel extends javax.swing.JPanel
 {    
-	Random die            =  null;
+	RandomGenerator die   =  null;
     public Color bgColor  = Color.white;
     public Color dotColor = Color.black;
     int    currValue      = 0;
@@ -23,14 +24,14 @@ public class DieJPanel extends javax.swing.JPanel
     /** Creates new form DieJPanel */
     public DieJPanel ()
     { 
-        die = new Random();
-        initComponents ();        
+        die = RandomGeneratorFactory.of("L64X128MixRandom").create();
+        initComponents ();
         rollDie();
     }
-    
+
     public DieJPanel (int rndSeed)
     {
-        die = new Random(rndSeed);
+        die = RandomGeneratorFactory.of("L64X128MixRandom").create(rndSeed);
         initComponents ();        
         rollDie();
     }
