@@ -2918,6 +2918,25 @@ this.gameBoard.clearHighlightAssist();
         return score;
     }
 
+    /**
+     * The robber steal: move one uniformly random resource card from the victim
+     * into this player's hand and return it. A victim's hand is hidden, so the
+     * robber cannot legitimately choose a card - the pick must be random.
+     * Returns null (and changes nothing) if the victim is null or has no cards.
+     */
+    public ResourceCard stealRandomCard(Player victim)
+    {
+        if ((victim == null) || (victim.resCards.isEmpty()))
+        {
+            return null;
+        }
+
+        ResourceCard rc = victim.resCards.get(this.gameRules.rand.nextInt(victim.resCards.size()));
+        victim.resCards.remove(rc);
+        this.resCards.add(rc);
+        return rc;
+    }
+
     public void COMP_MoveRobber()
     {
         Player leadPlayer = null;
@@ -3062,14 +3081,7 @@ this.gameBoard.clearHighlightAssist();
         // Rob from player!!!
         if (pickPlyr != null)
         {
-            if (pickPlyr.resCards.size() > 0)
-            {
-                ResourceCard rc = pickPlyr.resCards.get(this.gameRules.rand.nextInt(pickPlyr.resCards.size()));
-
-                // take rescard from player
-                pickPlyr.resCards.remove(rc);
-                this.resCards.add(rc);
-            }
+            this.stealRandomCard(pickPlyr);
         }
         
         this.gameRules.gameWindow.updateWindowImmediately(); // Update resource panel show missing/stolen goods.

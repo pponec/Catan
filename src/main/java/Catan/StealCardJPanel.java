@@ -109,28 +109,33 @@ public class StealCardJPanel extends javax.swing.JPanel
     private void formMouseClicked (java.awt.event.MouseEvent evt)//GEN-FIRST:event_formMouseClicked
     {//GEN-HEADEREND:event_formMouseClicked
      
-        // Determine which card is being investigated ...
+        // Did the click land on this victim's (face-down) cards at all?
         Object objs[] = player.resCards.toArray();
-        
-        ResourceCard rc;
-        Point        p = evt.getPoint();
-        boolean      showInfo = false;
+        Point  p      = evt.getPoint();
+        boolean onACard = false;
         for (int idx = objs.length-1; idx >= 0; idx--)
         {
-            rc = (ResourceCard)objs[idx];            
-            if (rc.clicked(p) != false)
+            if (((ResourceCard)objs[idx]).clicked(p) != false)
             {
-                //remove selected type resource from the player and place it in the robber's hand.
-                player.resCards.remove(rc);
-                robberPlayer.resCards.add(rc);
-                
-                player.gameRules.setLog (robberPlayer.name + " stole " + rc.type.toString() + " from " + player.name);
-                
-                ownerNotify.completedOK = true;
-                ownerNotify.dispose();
+                onACard = true;
                 break;
             }
-        }    
+        }
+        if (onACard == false)
+            return;    // missed the cards - wait for a real selection
+
+        // The cards are hidden, so the robber cannot legitimately choose which
+        // one to take. Clicking anywhere on this victim's cards steals a
+        // uniformly random one - the same logic the computer uses - instead of
+        // the top-most (last-added) card the overlapped hit-test used to return.
+        ResourceCard rc = robberPlayer.stealRandomCard(player);
+        if (rc != null)
+        {
+            player.gameRules.setLog (robberPlayer.name + " stole " + rc.type.toString() + " from " + player.name);
+        }
+
+        ownerNotify.completedOK = true;
+        ownerNotify.dispose();
 
     }//GEN-LAST:event_formMouseClicked
         
