@@ -704,8 +704,15 @@ public class ResBuildPanel extends javax.swing.JPanel
             if (player.buyDevCard () != false)
                 this.repaint();
         
-            this.updatePurchanseActions();          
-        } catch (CatanEndGameException e) {}
+            this.updatePurchanseActions();
+        }
+        catch (CatanEndGameException e)
+        {
+            // Buying the winning victory-point card ends the game. checkForVictory()
+            // already switched to the ENDGAME phase and showed the end-game dialog
+            // before this exception was thrown to unwind the stack, so there is
+            // nothing left to do here (same as the other build-action handlers).
+        }
     }//GEN-LAST:event_buyCardActionPerformed
 
     private void formMouseClicked (java.awt.event.MouseEvent evt)//GEN-FIRST:event_formMouseClicked

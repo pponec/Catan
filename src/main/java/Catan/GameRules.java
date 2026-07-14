@@ -1626,7 +1626,12 @@ thisPlayer.newDevCards.add (new ResourceCard(ResCardTypes.DEV_ROADBUILD));
         }
     }
     
-    public void playSound (AudioClipTypes act) 
+    // Sound is optional; if the audio subsystem is unavailable every playSound
+    // call would fail. Log the first failure only, so a broken mixer does not
+    // flood the console on every game event.
+    private static boolean soundErrorLogged = false;
+
+    public void playSound (AudioClipTypes act)
     {
         if (gameWindow.soundFX == false)
             return;
@@ -1667,7 +1672,15 @@ thisPlayer.newDevCards.add (new ResourceCard(ResCardTypes.DEV_ROADBUILD));
                 }
             });
             clip.start();
-        } catch (Exception e) { e.printStackTrace(); }
+        }
+        catch (Exception e)
+        {
+            if (soundErrorLogged == false)
+            {
+                soundErrorLogged = true;
+                e.printStackTrace();
+            }
+        }
     }
     
     public void pause (int milliSeconds)
