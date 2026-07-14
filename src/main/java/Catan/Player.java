@@ -1592,6 +1592,12 @@ public class Player
             
             if ((hasLRoad != this) && (hasLRoad != null))
             {
+                // Measure the current holder's road length freshly. calcVictoryPoints()
+                // only refreshes the calling player's own maxRoadLen, so the holder's
+                // cached value can be stale within the per-player update pass fired after
+                // a build. Comparing against a stale (too large) value would let the holder
+                // keep the card even after a challenger's road became strictly longer.
+                hasLRoad.maxRoadLen = hasLRoad.calcRoadLens(null);
                 if (maxRoadLen > hasLRoad.maxRoadLen)
                 {
                     this.gameRules.playSound(AudioClipTypes.LONGEST_ROAD);
