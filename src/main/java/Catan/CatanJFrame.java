@@ -866,12 +866,10 @@ for (int c = 0; c < 50; c++)
             switch (4)
             {
                 case 4:
-                    gameRules.newGame(PlayerTypes.COMPUTER,
-                                      PlayerTypes.COMPUTER,
-                                      PlayerTypes.COMPUTER,
-                                      PlayerTypes.COMPUTER,
-                                      PlayerTypes.NULL,
-                                      PlayerTypes.NULL,
+                    gameRules.newGame(new PlayerTypes[] {
+                                          PlayerTypes.COMPUTER, PlayerTypes.COMPUTER,
+                                          PlayerTypes.COMPUTER, PlayerTypes.COMPUTER,
+                                          PlayerTypes.NULL,     PlayerTypes.NULL },
                                       this,
                                       CompSkillLevel.NORMAL,
                                       GameTypes.STANDARD4,
@@ -950,7 +948,7 @@ for (int c = 0; c < 50; c++)
             dieLeft.paintImmediately();
             if (this.gameRules.gameCompTesting == false)
             {                
-                try { Thread.sleep(25); } catch (InterruptedException e) {}
+                try { Thread.sleep(25); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
             }
             
             dieRight.rollDie();
@@ -958,7 +956,7 @@ for (int c = 0; c < 50; c++)
             
             if (this.gameRules.gameCompTesting == false)
             {                
-                try { Thread.sleep(25); } catch (InterruptedException e) {}
+                try { Thread.sleep(25); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
             }
         }
     }
@@ -971,7 +969,7 @@ for (int c = 0; c < 50; c++)
             dieLeft.paintImmediately();
             if (this.gameRules.gameCompTesting == false)
             {                
-                try { Thread.sleep(25); } catch (InterruptedException e) {}
+                try { Thread.sleep(25); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
             }
         }
     }
@@ -1081,66 +1079,33 @@ for (int c = 0; c < 50; c++)
 
             turnMode(TurnMode.NONE);
 
-            switch (ngd.playerNo)
+            if ((ngd.playerNo < 3) || (ngd.playerNo > 6))
+                return;
+
+            // The four player-count branches only differed in how many of the
+            // six colour combo boxes were read; the rest were passed as NULL.
+            // Read them in colour order and let the count decide which are used.
+            javax.swing.JComboBox plyrBoxes[] =
             {
-                case 3:
-                    gameRules.newGame(ngd.blueComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            ngd.redComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            ngd.whiteComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            PlayerTypes.NULL,
-                            PlayerTypes.NULL,
-                            PlayerTypes.NULL,
-                            this,
-                            ngd.skillLevel,
-                            GameTypes.toGameType(ngd.gameTypeComBox.getSelectedIndex()),
-                            GameVariants.toGameVariant(ngd.gameVariantComBox.getSelectedIndex()),
-                            ngd.AITypeComBox.getSelectedIndex());
-                    break;
-
-                case 4:
-                    gameRules.newGame(ngd.blueComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            ngd.redComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            ngd.whiteComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            ngd.orangeComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            PlayerTypes.NULL,
-                            PlayerTypes.NULL,
-                            this,
-                            ngd.skillLevel,
-                            GameTypes.toGameType(ngd.gameTypeComBox.getSelectedIndex()),
-                            GameVariants.toGameVariant(ngd.gameVariantComBox.getSelectedIndex()),
-                            ngd.AITypeComBox.getSelectedIndex());
-                    break;
-
-                case 5:
-                    gameRules.newGame(ngd.blueComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            ngd.redComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            ngd.whiteComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            ngd.orangeComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            ngd.greenComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            PlayerTypes.NULL,
-                            this,
-                            ngd.skillLevel,
-                            GameTypes.toGameType(ngd.gameTypeComBox.getSelectedIndex()),
-                            GameVariants.toGameVariant(ngd.gameVariantComBox.getSelectedIndex()),
-                            ngd.AITypeComBox.getSelectedIndex());
-                    break;
-
-                case 6:
-                    gameRules.newGame(ngd.blueComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            ngd.redComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            ngd.whiteComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            ngd.orangeComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            ngd.greenComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            ngd.yellowComBox.getSelectedIndex() == 0 ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER,
-                            this,
-                            ngd.skillLevel,
-                            GameTypes.toGameType(ngd.gameTypeComBox.getSelectedIndex()),
-                            GameVariants.toGameVariant(ngd.gameVariantComBox.getSelectedIndex()),
-                            ngd.AITypeComBox.getSelectedIndex());
-                    break;
-                default:
-                    return;
+                ngd.blueComBox, ngd.redComBox, ngd.whiteComBox,
+                ngd.orangeComBox, ngd.greenComBox, ngd.yellowComBox
+            };
+            PlayerTypes plyrTypes[] = new PlayerTypes[plyrBoxes.length];
+            for (int i = 0; i < plyrBoxes.length; i++)
+            {
+                if (i >= ngd.playerNo)
+                    plyrTypes[i] = PlayerTypes.NULL;
+                else
+                    plyrTypes[i] = (plyrBoxes[i].getSelectedIndex() == 0)
+                            ? PlayerTypes.HUMAN : PlayerTypes.COMPUTER;
             }
+
+            gameRules.newGame(plyrTypes,
+                    this,
+                    ngd.skillLevel,
+                    GameTypes.toGameType(ngd.gameTypeComBox.getSelectedIndex()),
+                    GameVariants.toGameVariant(ngd.gameVariantComBox.getSelectedIndex()),
+                    ngd.AITypeComBox.getSelectedIndex());
 
             lastNGD = ngd;
             gameRules.tradeDialogLastPos = this.tradeDialogLastPos; // assign prefs

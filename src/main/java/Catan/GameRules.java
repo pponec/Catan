@@ -201,12 +201,15 @@ public class GameRules implements GameMouseNotifyInterf
     }           
     
     // AIPlayType :  0 mixed, 1 hueristics, 2 high score
-    public boolean newGame (PlayerTypes    plyr1, 
-                            PlayerTypes    plyr2, 
-                            PlayerTypes    plyr3, 
-                            PlayerTypes    plyr4, 
-                            PlayerTypes    plyr5, 
-                            PlayerTypes    plyr6, 
+    // Player colours are assigned in this fixed order; plyrTypes[i] == NULL
+    // leaves that colour out of the game.
+    private static final PlayerColTypes[] PLAYER_COLOURS =
+    {
+        PlayerColTypes.BLUE, PlayerColTypes.RED,   PlayerColTypes.WHITE,
+        PlayerColTypes.ORANGE, PlayerColTypes.GREEN, PlayerColTypes.YELLOW
+    };
+
+    public boolean newGame (PlayerTypes[]  plyrTypes,
                             CatanJFrame    cf,
                             CompSkillLevel skillLevel,
                             GameTypes      gameType,
@@ -301,18 +304,13 @@ public class GameRules implements GameMouseNotifyInterf
         
         gameWindow.clearPlayerTabs();
                         
-        if (plyr1 != PlayerTypes.NULL)
-            players.add(new Player(plyr1, PlayerColTypes.BLUE.name(),   PlayerColTypes.BLUE,   gameWindow.gameBoard, this,  new ResBuildPanel(), skillLevel, AIPlayList.removeFirst(), cbp[0]));
-        if (plyr2 != PlayerTypes.NULL)
-            players.add(new Player(plyr2, PlayerColTypes.RED.name(),    PlayerColTypes.RED,    gameWindow.gameBoard, this,  new ResBuildPanel(), skillLevel, AIPlayList.removeFirst(), cbp[1]));
-        if (plyr3 != PlayerTypes.NULL)
-            players.add(new Player(plyr3, PlayerColTypes.WHITE.name(),  PlayerColTypes.WHITE,  gameWindow.gameBoard, this,  new ResBuildPanel(), skillLevel, AIPlayList.removeFirst(), cbp[2]));
-        if (plyr4 != PlayerTypes.NULL)
-            players.add(new Player(plyr4, PlayerColTypes.ORANGE.name(), PlayerColTypes.ORANGE, gameWindow.gameBoard, this,  new ResBuildPanel(), skillLevel, AIPlayList.removeFirst(), cbp[3]));               
-        if (plyr5 != PlayerTypes.NULL)
-            players.add(new Player(plyr5, PlayerColTypes.GREEN.name(),  PlayerColTypes.GREEN,  gameWindow.gameBoard, this,  new ResBuildPanel(), skillLevel, AIPlayList.removeFirst(), cbp[4]));        
-        if (plyr6 != PlayerTypes.NULL)
-            players.add(new Player(plyr6, PlayerColTypes.YELLOW.name(), PlayerColTypes.YELLOW, gameWindow.gameBoard, this,  new ResBuildPanel(), skillLevel, AIPlayList.removeFirst(), cbp[5]));
+        for (int i = 0; i < plyrTypes.length; i++)
+        {
+            if (plyrTypes[i] != PlayerTypes.NULL)
+                players.add(new Player(plyrTypes[i], PLAYER_COLOURS[i].name(), PLAYER_COLOURS[i],
+                        gameWindow.gameBoard, this, new ResBuildPanel(), skillLevel,
+                        AIPlayList.removeFirst(), cbp[i]));
+        }
         
         // determine random play order.
         for (int num = players.size(); num > 0; num--)
@@ -1669,12 +1667,12 @@ thisPlayer.newDevCards.add (new ResourceCard(ResCardTypes.DEV_ROADBUILD));
                 }
             });
             clip.start();
-        } catch (Exception e) {}
+        } catch (Exception e) { e.printStackTrace(); }
     }
     
     public void pause (int milliSeconds)
     {
-        try { Thread.sleep(milliSeconds); } catch (InterruptedException e) { }
+        try { Thread.sleep(milliSeconds); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
     
     public void setLog (String s)
@@ -1693,10 +1691,10 @@ thisPlayer.newDevCards.add (new ResourceCard(ResCardTypes.DEV_ROADBUILD));
                         
             if (gameWindow.logView != null)
             {
-                gameWindow.logView.updateText(s);           
+                gameWindow.logView.updateText(s);
             }
         }
-        catch (Exception e){}
+        catch (Exception e){ e.printStackTrace(); }
     }
   
     public void setMsgLog (String s)

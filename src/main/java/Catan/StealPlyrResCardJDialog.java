@@ -70,75 +70,22 @@ public class StealPlyrResCardJDialog extends javax.swing.JDialog
         switch (mode)
         {
             case SELECT_PLAYER:
-                boolean  b = false,r = false,w = false,o = false,g = false,y = false;
-                   
-                for (BuildPoint bp:robberTile.buildJoins)
+                // One tab per distinct player (colour) adjacent to the robber
+                // tile - excluding the robber - shown when they still have
+                // cards. Replaces six identical per-colour branches.
+                java.util.EnumSet<PlayerColTypes> seenCols =
+                        java.util.EnumSet.noneOf(PlayerColTypes.class);
+                for (BuildPoint bp : robberTile.buildJoins)
                 {
-                    if ((bp.owner != robberPlayer) && (bp.owner != null))
-                    {
-                        switch (bp.owner.col)
-                        {
-                            case GREEN:                    
-                                if (g == false)
-                                {
-                                    StealCardJPanel s = new StealCardJPanel(bp.owner, robberPlayer, this);
-                                    if (s.hasCards () != false)                                    
-                                        plyrInfo.add(bp.owner.name, s);
-                                    g = true;
-                                }
-                                break;
-                                
-                            case YELLOW:
-                                if (y == false)
-                                {
-                                    StealCardJPanel s = new StealCardJPanel(bp.owner, robberPlayer, this);
-                                    if (s.hasCards () != false)                                    
-                                        plyrInfo.add(bp.owner.name, s);
-                                    y = true;
-                                }
-                                break;
-                                
-                            case BLUE:                    
-                                if (b == false)
-                                {
-                                    StealCardJPanel s = new StealCardJPanel(bp.owner, robberPlayer, this);
-                                    if (s.hasCards () != false)                                    
-                                        plyrInfo.add(bp.owner.name, s);
-                                    b = true;
-                                }
-                                break;
-                                
-                            case RED:
-                                if (r == false)
-                                {
-                                    StealCardJPanel s = new StealCardJPanel(bp.owner, robberPlayer, this);
-                                    if (s.hasCards() != false)
-                                        plyrInfo.add(bp.owner.name, s);
-                                    r = true;
-                                }
-                                break;
-                                
-                            case WHITE:
-                                if (w == false)
-                                {
-                                    StealCardJPanel s = new StealCardJPanel(bp.owner, robberPlayer, this);
-                                    if (s.hasCards() != false)
-                                        plyrInfo.add(bp.owner.name, s);
-                                    w = true;
-                                }
-                                break;
-                                
-                            case ORANGE:
-                                if (o == false)
-                                {
-                                    StealCardJPanel s = new StealCardJPanel(bp.owner, robberPlayer, this);
-                                    if (s.hasCards() != false)
-                                        plyrInfo.add(bp.owner.name, s);
-                                    o = true;
-                                }
-                                break;
-                        }                                
-                    }
+                    Player owner = bp.owner;
+                    if ((owner == robberPlayer) || (owner == null))
+                        continue;
+                    if (seenCols.add(owner.col) == false)
+                        continue;    // this colour was already handled
+
+                    StealCardJPanel s = new StealCardJPanel(owner, robberPlayer, this);
+                    if (s.hasCards() != false)
+                        plyrInfo.add(owner.name, s);
                 }
                 break;
                 

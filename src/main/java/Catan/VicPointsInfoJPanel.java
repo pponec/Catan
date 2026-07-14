@@ -38,7 +38,7 @@ public class VicPointsInfoJPanel extends javax.swing.JPanel
     }
     
     LinkedList<PlyrClickInfo> plyrClkInfo = new LinkedList<PlyrClickInfo>();
-    LinkedList<Player>        players     = null;
+    LinkedList<Player>        players     = new LinkedList<Player>();
     SoftBevelBorder           sbr         = new SoftBevelBorder(SoftBevelBorder.RAISED);
     
     /** Creates new form VicPointsInfoJPanel */
@@ -67,9 +67,9 @@ public class VicPointsInfoJPanel extends javax.swing.JPanel
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);      
         g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);                     
         
-        if (players == null) return;
-        
-        // determine if player has more than 10 points (end of game), and if so, 
+        if (players.isEmpty()) return;   // also guards the players.size() divisions below
+
+        // determine if player has more than 10 points (end of game), and if so,
         // divide horizontal spacing by that amount.
         int maxPnts = 10;        
         for (Player p:players)

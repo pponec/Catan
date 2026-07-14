@@ -1343,7 +1343,7 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
 
     public void pause (int milliSeconds)
     {
-        try { Thread.sleep(milliSeconds); } catch (InterruptedException e) { }
+        try { Thread.sleep(milliSeconds); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
     
     public void paintImmediately()
@@ -1363,7 +1363,7 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
         {
         blinkBG = new BufferedImage (this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);                
         this.paint(blinkBG.createGraphics()); // Draw and save current back ground
-        } catch (Exception e){}
+        } catch (Exception e){ e.printStackTrace(); }
     }        
     
     // Blink only the area that has changed
@@ -1414,7 +1414,7 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
             }
 
             blinkBG = null;        
-        } catch (Exception e) {}
+        } catch (Exception e) { e.printStackTrace(); }
     }
         
     public void blinkBG (long time)
@@ -1440,7 +1440,7 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
                 currentTime = System.currentTimeMillis();
             }        
             blinkBG = null;
-        } catch (Exception e) {}
+        } catch (Exception e) { e.printStackTrace(); }
     }            
            
     public BufferedImage splodeInit (BuildPoint bp, Rectangle rtnLocation)
@@ -1462,7 +1462,7 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
         
         rtnLocation.setBounds(objArea.x, objArea.y, objArea.width, objArea.height);
         return splodeImg;        
-        }catch (Exception e){}        
+        }catch (Exception e){ e.printStackTrace(); }        
         return null;
     }
     
@@ -1508,7 +1508,7 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
         
         g2.drawImage(db, 0, 0, null);  
         
-        }catch (Exception e){}
+        }catch (Exception e){ e.printStackTrace(); }
     }
 
     //***************************************************************************************
@@ -1641,7 +1641,7 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
                     ((Tile)hlLastSelObj).highLightSelectedDraw ((Graphics2D)g, Color.white);
                 }
             }
-        } catch (Exception e) { }        
+        } catch (Exception e) { e.printStackTrace(); }        
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables

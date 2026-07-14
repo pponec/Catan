@@ -26,9 +26,9 @@ public class ShowTextJFrame extends javax.swing.JFrame
         try
         {
             d.insertString(d.getLength(), s, null);
-            text.setCaretPosition(d.getLength());                        
+            text.setCaretPosition(d.getLength());
         }
-        catch (Exception e){}        
+        catch (Exception e){ e.printStackTrace(); }
     }
    
     public void clrLog ()

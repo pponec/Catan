@@ -844,7 +844,7 @@ private void yellowComBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-F
         if (orangeComBox.getSelectedIndex() != 1) orangeComBox.setSelectedIndex(1);
         if (greenComBox.getSelectedIndex()  != 1) greenComBox.setSelectedIndex(1);
         if (whiteComBox.getSelectedIndex()  != 1) whiteComBox.setSelectedIndex(1);                
-    }catch (Exception e){}
+    }catch (Exception e){ e.printStackTrace(); }
 }//GEN-LAST:event_yellowComBoxItemStateChanged
 
 private void blueComBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_blueComBoxItemStateChanged
@@ -855,7 +855,7 @@ try
         if (orangeComBox.getSelectedIndex() != 1) orangeComBox.setSelectedIndex(1);
         if (greenComBox.getSelectedIndex()  != 1) greenComBox.setSelectedIndex(1);
         if (yellowComBox.getSelectedIndex() != 1) yellowComBox.setSelectedIndex(1);
-    }catch (Exception e){}
+    }catch (Exception e){ e.printStackTrace(); }
 }//GEN-LAST:event_blueComBoxItemStateChanged
 
 private void orangeComBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_orangeComBoxItemStateChanged
@@ -866,7 +866,7 @@ try
         if (blueComBox.getSelectedIndex()   != 1) blueComBox.setSelectedIndex(1);
         if (greenComBox.getSelectedIndex()  != 1) greenComBox.setSelectedIndex(1);
         if (yellowComBox.getSelectedIndex() != 1) yellowComBox.setSelectedIndex(1);        
-    }catch (Exception e){}
+    }catch (Exception e){ e.printStackTrace(); }
 }//GEN-LAST:event_orangeComBoxItemStateChanged
 
 private void greenComBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_greenComBoxItemStateChanged
@@ -877,7 +877,7 @@ private void greenComBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FI
         if (orangeComBox.getSelectedIndex() != 1) orangeComBox.setSelectedIndex(1);
         if (whiteComBox.getSelectedIndex()  != 1) whiteComBox.setSelectedIndex(1);
         if (yellowComBox.getSelectedIndex() != 1) yellowComBox.setSelectedIndex(1);                
-    }catch (Exception e){}
+    }catch (Exception e){ e.printStackTrace(); }
 }//GEN-LAST:event_greenComBoxItemStateChanged
 
 private void whiteComBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_whiteComBoxItemStateChanged
@@ -888,7 +888,7 @@ private void whiteComBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FI
         if (orangeComBox.getSelectedIndex() != 1) orangeComBox.setSelectedIndex(1);
         if (greenComBox.getSelectedIndex()  != 1) greenComBox.setSelectedIndex(1);
         if (yellowComBox.getSelectedIndex() != 1) yellowComBox.setSelectedIndex(1);                
-    }catch (Exception e){}
+    }catch (Exception e){ e.printStackTrace(); }
 }//GEN-LAST:event_whiteComBoxItemStateChanged
 
 private void plyr6RadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_plyr6RadButtonActionPerformed
@@ -944,7 +944,7 @@ private void redComBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRS
         if (orangeComBox.getSelectedIndex() != 1) orangeComBox.setSelectedIndex(1);
         if (greenComBox.getSelectedIndex()  != 1) greenComBox.setSelectedIndex(1);
         if (yellowComBox.getSelectedIndex() != 1) yellowComBox.setSelectedIndex(1);                
-    }catch (Exception e){}
+    }catch (Exception e){ e.printStackTrace(); }
 }//GEN-LAST:event_redComBoxItemStateChanged
 
 private void gameTypeComBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gameTypeComBoxActionPerformed

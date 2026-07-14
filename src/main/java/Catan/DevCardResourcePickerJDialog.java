@@ -114,29 +114,9 @@ public class DevCardResourcePickerJDialog extends javax.swing.JDialog
         {
             case MONOPOLY:
                 {
-                    // Scran through all other players and steal there resource that 
-                    // matches this type                   
-                    for(Player p:thisPlayer.gameRules.players)                         
-                    {                        
-                        if (p == thisPlayer)
-                            continue;
-                        
-                        int delCount = 0;
-                        for (ResourceCard prc:p.resCards)
-                        {
-                            if (prc.type == rc.type)
-                            {
-                                objs.add(prc);
-                                delCount++;
-                            }
-                        }
-                        // Remove this resource type from this player
-                        if (delCount > 0)
-                        {
-                            p.delResType(rc.type, delCount);
-                        }                        
-                    }  
-                    
+                    // Take every card of this resource type from all other players.
+                    thisPlayer.appropriateAllOfType(rc.type, objs);
+
                     txt.setText ("You have appropriated " + objs.size() + " card(s)");
                     ok.setVisible(true); 
                     cancel.setVisible(false); 

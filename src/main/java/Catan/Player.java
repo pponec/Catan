@@ -1507,6 +1507,38 @@ public class Player
         }
     }
 
+    /**
+     * Monopoly: take every card of the given resource type from all other
+     * players. The confiscated cards are appended to {@code into}, which may be
+     * this player's own hand (AI) or a staging list for the human picker dialog.
+     * Returns how many cards were taken.
+     */
+    public int appropriateAllOfType(ResCardTypes crdType, LinkedList<ResourceCard> into)
+    {
+        int count = 0;
+        for (Player p : this.gameRules.players)
+        {
+            if (p == this)
+                continue;
+
+            int delCount = 0;
+            for (ResourceCard prc : p.resCards)
+            {
+                if (prc.type == crdType)
+                {
+                    into.add(prc);
+                    delCount++;
+                }
+            }
+            if (delCount > 0)
+            {
+                p.delResType(crdType, delCount);
+                count += delCount;
+            }
+        }
+        return count;
+    }
+
     public void refreshPlayerInfo()
     {
         if (resPanelInfo != null)
@@ -2580,31 +2612,7 @@ this.gameBoard.clearHighlightAssist();
                             // Make it worth our while
                             if (arry[bIdx] >= 4)
                             {
-                                int count = 0;
-                                // Scan through all other players and steal there resource that
-                                // matches this type
-                                for (Player p : this.gameRules.players)
-                                {
-                                    if (p == this)
-                                    {
-                                        continue;
-                                    }
-                                    int delCount = 0;
-                                    for (ResourceCard prc : p.resCards)
-                                    {
-                                        if (prc.type == rt[bIdx])
-                                        {
-                                            resCards.add(prc);
-                                            delCount++;
-                                        }
-                                    }
-                                    // Remove this resource type from this player
-                                    if (delCount > 0)
-                                    {
-                                        count += delCount;
-                                        p.delResType(rc.type, delCount);
-                                    }
-                                }
+                                int count = this.appropriateAllOfType(rt[bIdx], this.resCards);
 
                                 this.gameRules.setMsgLog(this.name + " Monopoly : appropriated " + count + " of " + rt[bIdx].toString() + " from other players");
                                 this.newDevCards.remove(rc);
@@ -3078,18 +3086,24 @@ this.gameBoard.clearHighlightAssist();
             }
         }
 
-        // Rob from player!!!
+        // Rob from player!!! (a tile can have no reachable opponent, in which
+        // case pickPlyr stays null and only the robber moves.)
         if (pickPlyr != null)
         {
             this.stealRandomCard(pickPlyr);
         }
-        
+
         this.gameRules.gameWindow.updateWindowImmediately(); // Update resource panel show missing/stolen goods.
-        
+
         this.gameBoard.clrDblBuffCache();
-        this.gameBoard.blinkBGObj(700, (CatanGraphBase) bestPick.t, lastRobberTile.getBounds());
+        java.awt.Rectangle lastRobberArea = (lastRobberTile != null) ? lastRobberTile.getBounds() : null;
+        this.gameBoard.blinkBGObj(700, (CatanGraphBase) bestPick.t, lastRobberArea);
         this.gameBoard.repaint();
-        this.gameRules.setMsgLog(name + " moved robber and stole from player " + pickPlyr.name);
+
+        if (pickPlyr != null)
+            this.gameRules.setMsgLog(name + " moved robber and stole from player " + pickPlyr.name);
+        else
+            this.gameRules.setMsgLog(name + " moved robber");
     }
 
     public ResCardTypes COMP_CostBenefitTrade(ResourceCard buyCard, LinkedList<ResourceCard> traderList)
@@ -4648,6 +4662,7 @@ this.gameBoard.clearHighlightAssist();
         }
         catch (InterruptedException e)
         {
+            Thread.currentThread().interrupt();
         }
     }
 }
