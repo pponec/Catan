@@ -17,7 +17,7 @@ import javax.swing.plaf.basic.BasicPanelUI;
  * 
  *  April 2008
  */
-public class AboutJDialog extends javax.swing.JDialog implements Runnable
+public class AboutJDialog extends javax.swing.JDialog
 {
     int          scrollYIdx = 0;
     boolean      scrollInit = false;
@@ -135,7 +135,7 @@ public class AboutJDialog extends javax.swing.JDialog implements Runnable
                                ""                               
                                };
     BufferedImage tranImg   = null;
-    Thread        thread    = null;
+    javax.swing.Timer scrollTimer = null;
 
     /** Creates new form AboutJDialog */
     public AboutJDialog(java.awt.Frame parent, boolean modal)
@@ -232,42 +232,37 @@ public class AboutJDialog extends javax.swing.JDialog implements Runnable
         this.start();
     }
 
-    public void run()
-    {    
-        try { Thread.sleep(1000); } catch (InterruptedException e) { }
-        do
-        {
-            if (pauseToggle.isSelected() == false)
-                scrollYIdx--;            
-
-            long lastTime = System.currentTimeMillis();
-            scrollerPanel.paintImmediately(scrollerPanel.getBounds());
-            try
-            {   
-                long t = 48 - (System.currentTimeMillis() - lastTime);
-                if (t > 0)                    
-                    Thread.sleep(t);
-            }
-            catch(InterruptedException e)
-            {
-                break;
-            }            
-            
-        } while(thread != null);        
-    }
-    
     public void start()
     {
-        if(thread == null)
+        if (scrollTimer == null)
         {
-            thread = new Thread(this);
-            thread.start();
+            // Animate the credits scroll on the Event Dispatch Thread. The old
+            // implementation ran its own thread calling paintImmediately(), i.e.
+            // painting Swing off the EDT in parallel with the rest of the UI. A
+            // Swing Timer fires its action on the EDT, so the repaint is safe.
+            scrollTimer = new javax.swing.Timer(48, new java.awt.event.ActionListener()
+            {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e)
+                {
+                    if (pauseToggle.isSelected() == false)
+                        scrollYIdx--;
+
+                    scrollerPanel.repaint();
+                }
+            });
+            scrollTimer.setInitialDelay(1000);
+            scrollTimer.start();
         }
     }
 
     public void stop()
     {
-        thread = null;
+        if (scrollTimer != null)
+        {
+            scrollTimer.stop();
+            scrollTimer = null;
+        }
     }
         
     

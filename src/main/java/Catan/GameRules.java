@@ -24,6 +24,8 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineListener;
 import javax.swing.ImageIcon;
 import javax.swing.text.Document;
 
@@ -1651,8 +1653,23 @@ thisPlayer.newDevCards.add (new ResourceCard(ResCardTypes.DEV_ROADBUILD));
             DataLine.Info info = new DataLine.Info(Clip.class, audioStream.getFormat());
             Clip clip = (Clip) AudioSystem.getLine(info);
             clip.open(audioStream);
+
+            // Release the audio line once the clip finishes. Without this, every
+            // sound leaks its Clip (and the mixer thread/line behind it); over a
+            // long game the mixer can run out of lines and playback stops.
+            clip.addLineListener(new LineListener()
+            {
+                @Override
+                public void update(LineEvent event)
+                {
+                    if (event.getType() == LineEvent.Type.STOP)
+                    {
+                        event.getLine().close();
+                    }
+                }
+            });
             clip.start();
-        } catch (Exception e) {}  
+        } catch (Exception e) {}
     }
     
     public void pause (int milliSeconds)
