@@ -188,4 +188,119 @@ class RoadLengthTest
         // tail (1) + once around the triangle (3) = 4
         assertEquals(4, me.calcRoadLens(null));
     }
+
+    // ----- loops: a closed road counts every segment, once ------------------
+    //
+    // The longest road is the longest run that never reuses a segment; a vertex
+    // may be passed through more than once, so a closed loop contributes all of
+    // its edges. These cases mirror the bug report where BLUE's ring around a
+    // tile plus a tail was the true longest road yet the bonus went elsewhere.
+
+    /** Wire a closed loop through the given points (last joins back to first). */
+    private void loop(Player owner, BuildPoint... pts)
+    {
+        for (int i = 0; i < pts.length; i++)
+        {
+            owner.builtRoadObjs.add(edge(pts[i], pts[(i + 1) % pts.length], owner));
+        }
+    }
+
+    /**
+     * BLUE's shape from the screenshot: a six-segment ring with a three-segment
+     * tail. The longest road enters the tail, reaches the ring and goes the whole
+     * way round: tail (3) + loop (6) = 9. This is the length that must out-rank a
+     * rival's merely branched network.
+     */
+    @Test
+    void hexLoopWithTailOfThreeCountsNine()
+    {
+        Player me = newPlayer();
+        BuildPoint[] h = { point(), point(), point(), point(), point(), point() };
+        loop(me, h);                                   // hexagonal ring, 6 segments
+
+        BuildPoint t1 = point(), t2 = point(), t3 = point();
+        me.builtRoadObjs.add(edge(h[0], t1, me));
+        me.builtRoadObjs.add(edge(t1, t2, me));
+        me.builtRoadObjs.add(edge(t2, t3, me));
+        openEnd(t3);
+
+        assertEquals(9, me.calcRoadLens(null));
+    }
+
+    /**
+     * A single ring carrying a tail on two opposite corners. The best run is one
+     * tail plus the entire ring (2 + 6 = 8); it cannot then reach the second tail
+     * without reusing a ring segment, so the two tails never both count.
+     */
+    @Test
+    void hexLoopWithTwoOppositeTailsCountsEight()
+    {
+        Player me = newPlayer();
+        BuildPoint[] h = { point(), point(), point(), point(), point(), point() };
+        loop(me, h);
+
+        BuildPoint a1 = point(), a2 = point();
+        me.builtRoadObjs.add(edge(h[0], a1, me));
+        me.builtRoadObjs.add(edge(a1, a2, me));
+        openEnd(a2);
+
+        BuildPoint b1 = point(), b2 = point();
+        me.builtRoadObjs.add(edge(h[3], b1, me));
+        me.builtRoadObjs.add(edge(b1, b2, me));
+        openEnd(b2);
+
+        assertEquals(8, me.calcRoadLens(null));
+    }
+
+    /**
+     * Two loops sharing a single vertex (a figure eight) and no open tip at all.
+     * One edge-distinct trail threads both loops through the shared vertex, so
+     * all six segments count.
+     */
+    @Test
+    void figureEightSharingOneVertexCountsSix()
+    {
+        Player me = newPlayer();
+        BuildPoint c = point();
+        loop(me, c, point(), point());   // loop A through c
+        loop(me, c, point(), point());   // loop B through c
+
+        assertEquals(6, me.calcRoadLens(null));
+    }
+
+    /**
+     * Two triangular loops joined by a single bridge segment (a dumbbell), again
+     * with no open tip. Once around the first loop (3) + the bridge (1) + once
+     * around the second (3) = 7.
+     */
+    @Test
+    void twoLoopsJoinedByABridgeCountSeven()
+    {
+        Player me = newPlayer();
+        BuildPoint a0 = point(), b0 = point();
+        loop(me, a0, point(), point());          // loop A anchored at a0
+        me.builtRoadObjs.add(edge(a0, b0, me));  // bridge
+        loop(me, b0, point(), point());          // loop B anchored at b0
+
+        assertEquals(7, me.calcRoadLens(null));
+    }
+
+    /**
+     * A theta: three separate paths between the same two junctions (two loops
+     * that share both endpoints). Both junctions have odd degree, so an Euler
+     * trail walks every one of the five segments.
+     */
+    @Test
+    void thetaWithThreePathsBetweenTwoNodesCountsFive()
+    {
+        Player me = newPlayer();
+        BuildPoint u = point(), v = point(), w = point(), x = point();
+        me.builtRoadObjs.add(edge(u, v, me));   // direct path
+        me.builtRoadObjs.add(edge(u, w, me));   // path via w
+        me.builtRoadObjs.add(edge(w, v, me));
+        me.builtRoadObjs.add(edge(u, x, me));   // path via x
+        me.builtRoadObjs.add(edge(x, v, me));
+
+        assertEquals(5, me.calcRoadLens(null));
+    }
 }
