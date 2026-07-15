@@ -1360,20 +1360,20 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
         this.saveTileBG = null;
     }
             
-    // Kept so existing callers stay valid; the flash no longer needs a captured
-    // background image - it is drawn as an overlay inside the normal paint cycle.
+    // Kept so existing callers stay valid; the move highlight no longer needs a
+    // captured background image - it is drawn as an overlay inside the paint cycle.
     public void blinkBGInit ()
     {
     }
 
-    // Flash the freshly changed object (settlement/city/road, or a robbed tile).
+    // Show the freshly changed object (settlement/city/road, or a robbed tile).
     //
-    // Instead of drawing straight into getGraphics() off the paint cycle (which
-    // left the board corrupted when the window was resized mid-animation), we
-    // toggle a highlight overlay on the changed object and repaint just its area
-    // synchronously with paintImmediately(). Every frame is a real paint at the
-    // current geometry, so a resize during the flash repaints cleanly. Like the
-    // dice-roll animation, this blocks the (single) game thread with short pauses.
+    // The object is highlighted once and held for the given time so the human
+    // can see what the computer just did, then the highlight is cleared - no
+    // on/off blinking. The highlight is an overlay repainted synchronously with
+    // paintImmediately(), so every frame is a real paint at the current geometry
+    // and a resize mid-move repaints cleanly. Like the dice-roll animation, this
+    // blocks the (single) game thread for the hold.
     public void blinkBGObj (long time, CatanGraphBase obj, Rectangle robberErase)
     {
         if (this.gameWindow.gameRules.gameCompTesting != false)
@@ -1405,21 +1405,11 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
                 this.paintImmediately(robberErase);
             }
 
+            // Highlight the move once and hold it for the duration.
             this.blinkObj = obj;
-
-            long currentTime = System.currentTimeMillis();
-            long endTime     = currentTime + time;
-
-            while (currentTime < endTime)
-            {
-                this.blinkOn = true;
-                this.paintImmediately(objArea);
-                pause (25);
-                this.blinkOn = false;
-                this.paintImmediately(objArea);
-                pause (25);
-                currentTime = System.currentTimeMillis();
-            }
+            this.blinkOn  = true;
+            this.paintImmediately(objArea);
+            pause ((int)time);
         } catch (Exception e) { e.printStackTrace(); }
         finally
         {
