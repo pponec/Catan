@@ -73,9 +73,6 @@ public class GameBoardJPanel extends javax.swing.JPanel
     CatanGraphBase hlLastSelObj    = null;
     CatanGraphBase hlPopMenuObj    = null;
 
-    // ----- Flash game board changes -----    
-    BufferedImage  blinkBG         = null;
-    
     // ----- Quicken board refresh/updates -----
     BufferedImage saveTileBG       = null;
     
@@ -1357,91 +1354,56 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
         this.saveTileBG = null;
     }
             
+    // The build/robber "blink" highlight used to run an artificial loop (~700 ms)
+    // that alternately drew the old and new board straight into getGraphics() off
+    // the EDT. That was pure delay and, because it painted outside the normal
+    // paint cycle, the board was left corrupted when the window was resized during
+    // it. The model is already updated by the time these are called, so we simply
+    // request a normal repaint on the EDT - no delay, no off-EDT drawing.
     public void blinkBGInit ()
     {
-        try
-        {
-        blinkBG = new BufferedImage (this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);                
-        this.paint(blinkBG.createGraphics()); // Draw and save current back ground
-        } catch (Exception e){ e.printStackTrace(); }
-    }        
-    
-    // Blink only the area that has changed
+        // Nothing to capture any more; kept so existing callers stay valid.
+    }
+
+    // Repaint only the area that has changed.
     public void blinkBGObj (long time, CatanGraphBase obj, Rectangle robberErase)
     {
         if (this.gameWindow.gameRules.gameCompTesting != false)
             return;
-        
-        try
+
+        Rectangle objArea = null;
+
+        // determine update area
+        if (obj instanceof BuildPoint)
         {
-            Rectangle objArea = null;
+            objArea = ((BuildPoint)obj).calcBuildSize();
+        }
+        else if (obj instanceof Road)
+        {
+            objArea = ((Road)obj).calcBuildSize();
+        }
+        else if (obj instanceof Tile)
+        {
+            objArea = ((Tile)obj).getBounds();
+        }
 
-            // determine update area 
-            if (obj instanceof BuildPoint)
-            {
-                objArea = ((BuildPoint)obj).calcBuildSize();                       
-            }
-            else if (obj instanceof Road)
-            {   
-                objArea = ((Road)obj).calcBuildSize();
-            }
-            else if (obj instanceof Tile)
-            {
-                objArea = ((Tile)obj).getBounds();
-            }
-            else
-                return;            
-
-            BufferedImage  newBG = new BufferedImage (this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
-            this.paint(newBG.createGraphics());
-
-            long       currentTime = System.currentTimeMillis();
-            long       endTime     = currentTime + time;                
-            Graphics2D g2          = (Graphics2D)this.getGraphics();
-
-            if (robberErase != null)
-            {
-                g2.drawImage(newBG.getSubimage(robberErase.x, robberErase.y, robberErase.width, robberErase.height), robberErase.x, robberErase.y, null);            
-            }
-
-            while (currentTime < endTime)
-            {            
-                g2.drawImage(blinkBG.getSubimage(objArea.x, objArea.y, objArea.width, objArea.height), objArea.x, objArea.y, null);            
-                pause (100);            
-                g2.drawImage(newBG.getSubimage  (objArea.x, objArea.y, objArea.width, objArea.height), objArea.x, objArea.y, null);
-                pause (100);   
-                currentTime = System.currentTimeMillis();
-            }
-
-            blinkBG = null;        
-        } catch (Exception e) { e.printStackTrace(); }
+        if (robberErase != null)
+        {
+            this.repaint(robberErase);
+        }
+        if (objArea != null)
+        {
+            this.repaint(objArea);
+        }
     }
-        
+
     public void blinkBG (long time)
     {
         if (this.gameWindow.gameRules.gameCompTesting != false)
             return;
-        
-        try
-        {
-            BufferedImage  newBG = new BufferedImage (this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
-            this.paint(newBG.createGraphics());
 
-            long currentTime = System.currentTimeMillis();
-            long endTime     = currentTime + time;
-
-            Graphics2D g2 = (Graphics2D)this.getGraphics();
-            while (currentTime < endTime)
-            {            
-                g2.drawImage(blinkBG, 0, 0, null);            
-                pause (100);            
-                g2.drawImage(newBG,   0, 0, null);            
-                pause (100);   
-                currentTime = System.currentTimeMillis();
-            }        
-            blinkBG = null;
-        } catch (Exception e) { e.printStackTrace(); }
-    }            
+        this.repaint();
+    }
            
     public BufferedImage splodeInit (BuildPoint bp, Rectangle rtnLocation)
     {       
