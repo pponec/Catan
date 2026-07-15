@@ -18,7 +18,7 @@ import javax.swing.plaf.basic.BasicTabbedPaneUI;
 /**
  *
  * @author  Steven De Toni
- * 
+ *
  *  April 2008
  */
 enum TurnMode
@@ -47,7 +47,7 @@ enum DebugLevel
 public class CatanJFrame extends javax.swing.JFrame
 {
 
-    public static String Version = "1.9.8";
+    public static String Version = "2.0.0";
     // ----- Debug -----
     public DebugLevel dbgLevel = DebugLevel.NONE;
     // ------ Preferences ----
@@ -75,7 +75,7 @@ public class CatanJFrame extends javax.swing.JFrame
         dieLeft.bgColor = new Color(200, 0, 0);
         dieLeft.dotColor = Color.white;
 
-        // Setup debug menu ... 
+        // Setup debug menu ...
         switch (dbgLevel)
         {
             case COMPLETE:
@@ -93,7 +93,7 @@ public class CatanJFrame extends javax.swing.JFrame
 
         splitPane.setLeftComponent(gameBoard);
 
-        // Add custom coloured tabs        
+        // Add custom coloured tabs
         playerInfo.setUI(new BasicTabbedPaneUI()
         {
 
@@ -223,7 +223,7 @@ public class CatanJFrame extends javax.swing.JFrame
                         if (rbp.player.gameRules.thisPlayer == rbp.player)
                         {
                             //g2.setColor(rbp.player.col.toCol());
-                            //g2.fillRoundRect (x+inset.left, y+inset.top, w-inset.right, h-inset.bottom, inset.left*2, inset.left*2);                             
+                            //g2.fillRoundRect (x+inset.left, y+inset.top, w-inset.right, h-inset.bottom, inset.left*2, inset.left*2);
                             alteredTabBackground(g, tabPlacement, tabIndex, x, y, w, h, isSelected, rbp.player.col.toCol());
                         }
                         else
@@ -837,8 +837,8 @@ private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
 
 private void compPlayTestMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compPlayTestMenuItemActionPerformed
 
-for (int c = 0; c < 50; c++)    
-{                       
+for (int c = 0; c < 50; c++)
+{
         dbgLevel = DebugLevel.NONE;
         soundFX  = false;
 
@@ -875,11 +875,11 @@ for (int c = 0; c < 50; c++)
                                       GameTypes.STANDARD4,
                                       GameVariants.NORMAL,
                                       0);
-                    
+
                     // set the build priority for each com player
                     CompBuildPriorities bp[] = {CompBuildPriorities.BUILD_PRI_1, CompBuildPriorities.BUILD_PRI_4, CompBuildPriorities.BUILD_PRI_1,CompBuildPriorities.BUILD_PRI_4};
                     CompAIType      ai[] = {CompAIType.HUERISTIC, CompAIType.HUERISTIC, CompAIType.HIGHSCORE, CompAIType.HIGHSCORE};
-                    
+
                     int i = 0;
                     for (Player p:gameRules.players)
                     {
@@ -898,7 +898,7 @@ for (int c = 0; c < 50; c++)
             dbgViewCardsChkBoxMenuItemActionPerformed(null);
 
             vicPointsInfo.assignPlayerList(gameRules.players);
-            
+
             gameRules.playNextPhase();
             for (;;)
             {
@@ -908,9 +908,9 @@ for (int c = 0; c < 50; c++)
         catch (CatanEndGameException e)
         {
             // this.DebugErr(gameRules.thisPlayer.name + " WON! " + " Build Priority = " + gameRules.thisPlayer.compBuildPriority.toString());
-            
+
             // gameNo, playerWon, AI Type, Build_Pri_1, Build_Pri_4, heuristic, highscore, Game Turn No
-            
+
             String s = c + "," + gameRules.thisPlayer.name + ", ";
             s += gameRules.thisPlayer.compAIType.toString() + ", ";
             switch (gameRules.thisPlayer.compBuildPriority)
@@ -920,19 +920,19 @@ for (int c = 0; c < 50; c++)
                     break;
                 case BUILD_PRI_4:
                     s += "0,1";
-                    break;                                    
+                    break;
             }
             switch (gameRules.thisPlayer.compAIType)
             {
                 case HUERISTIC:
                     s += ", 1,0";
                     break;
-                    
+
                 case HIGHSCORE:
                     s += ", 0,1";
-                    break;                
+                    break;
             }
-            
+
             s += ", " + gameRules.gameTurnNo;
             this.DebugErr(s);
         }
@@ -947,15 +947,15 @@ for (int c = 0; c < 50; c++)
             dieLeft.rollDie();
             dieLeft.paintImmediately();
             if (this.gameRules.gameCompTesting == false)
-            {                
+            {
                 try { Thread.sleep(25); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
             }
-            
+
             dieRight.rollDie();
             dieRight.paintImmediately();
-            
+
             if (this.gameRules.gameCompTesting == false)
-            {                
+            {
                 try { Thread.sleep(25); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
             }
         }
@@ -968,7 +968,7 @@ for (int c = 0; c < 50; c++)
             dieLeft.rollDie();
             dieLeft.paintImmediately();
             if (this.gameRules.gameCompTesting == false)
-            {                
+            {
                 try { Thread.sleep(25); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
             }
         }
@@ -1051,7 +1051,7 @@ for (int c = 0; c < 50; c++)
 
         GameNewJDialog ngd = new GameNewJDialog(this, true);
 
-        ngd.setUpLike(lastNGD); // set up game settings like last game.               
+        ngd.setUpLike(lastNGD); // set up game settings like last game.
 
         ngd.setVisible(true);
 
@@ -1068,7 +1068,7 @@ for (int c = 0; c < 50; c++)
             // Start a new Catan Game...
             }
             gameRules = new GameRules();
-            gameBoard.gameWindow = this;                                       
+            gameBoard.gameWindow = this;
             gameBoard.hlAssistActive = ngd.hlAssistChkBox.isSelected();
 
             gameBoard.buildInitialCatanScene(GameTypes.toGameType(ngd.gameTypeComBox.getSelectedIndex()),
@@ -1119,7 +1119,7 @@ for (int c = 0; c < 50; c++)
         {
         }
     }
-    
+
     public void updateWindowImmediately()
     {
 
