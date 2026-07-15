@@ -4221,12 +4221,17 @@ this.gameBoard.clearHighlightAssist();
         if (toBP == destBP)
         {
             return true;
-
-        // We can't go through another players building ...
         }
-        if (((fromBP.owner != null) && (fromBP.owner != this)) && (toBP.owner == null))
+
+        // We can't extend a road *through* another player's settlement/city: it
+        // breaks the road, both for placement and for the longest-road bonus.
+        // Test toBP - the vertex we would continue through - not fromBP: checking
+        // the vertex we arrived from (as this did before) let the search route
+        // straight through an opponent's building, so the AI planned and built
+        // roads past a foreign settlement that can never earn the bonus. This
+        // mirrors the same fix already made in roadLen().
+        if ((toBP.owner != null) && (toBP.owner != this))
         {
-            //fromBP.debugHightlight(this.gameBoard.getGraphics(), Color.MAGENTA);
             //toBP.debugHightlight(this.gameBoard.getGraphics(), Color.PINK);
             //this.pause(100);
             return false;

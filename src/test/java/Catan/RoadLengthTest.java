@@ -1,6 +1,10 @@
 package Catan;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.LinkedList;
 
 import org.junit.jupiter.api.Test;
 
@@ -50,6 +54,14 @@ class RoadLengthTest
     private void openEnd(BuildPoint at)
     {
         edge(at, point(), null);
+    }
+
+    /** Create an empty, still-buildable edge - a candidate the AI could build on. */
+    private Road buildable(BuildPoint a, BuildPoint b)
+    {
+        Road r = edge(a, b, null);
+        r.type = RoadTypes.BUILDABLE;
+        return r;
     }
 
     // ----- fix 1: a foreign building breaks the road -------------------------
@@ -302,5 +314,59 @@ class RoadLengthTest
         me.builtRoadObjs.add(edge(x, v, me));
 
         assertEquals(5, me.calcRoadLens(null));
+    }
+
+    // ----- AI road planning: never route through a foreign building ----------
+    //
+    // COMP_Calc_Distances is the AI's road pathfinder. A road planned through an
+    // opponent's settlement/city can never join into one continuous run, so it
+    // earns no longest-road bonus. The search must refuse such a route - the same
+    // rule the length calculation already enforces.
+
+    /** roadList seeded with the first candidate edge, as the callers do. */
+    private LinkedList<Road> seed(Road first)
+    {
+        LinkedList<Road> list = new LinkedList<Road>();
+        list.add(first);
+        return list;
+    }
+
+    @Test
+    void aiRouteThroughForeignBuildingIsRejected()
+    {
+        Player me = newPlayer();
+        Player opp = new Player();
+        BuildPoint n0 = point(), n1 = point(), dest = point();
+        Road b1 = buildable(n0, n1);
+        buildable(n1, dest);
+        n1.owner = opp;               // opponent building sits between n0 and dest
+
+        assertFalse(me.COMP_Calc_Distances(n0, n1, dest, seed(b1), 5),
+                "the AI must not plan a road through an opponent's building");
+    }
+
+    @Test
+    void aiRouteThroughOwnBuildingIsAllowed()
+    {
+        Player me = newPlayer();
+        BuildPoint n0 = point(), n1 = point(), dest = point();
+        Road b1 = buildable(n0, n1);
+        buildable(n1, dest);
+        n1.owner = me;                // our own building does not break the route
+
+        assertTrue(me.COMP_Calc_Distances(n0, n1, dest, seed(b1), 5),
+                "the AI may route a road through its own building");
+    }
+
+    @Test
+    void aiRouteThroughEmptyVertexIsAllowed()
+    {
+        Player me = newPlayer();
+        BuildPoint n0 = point(), n1 = point(), dest = point();
+        Road b1 = buildable(n0, n1);
+        buildable(n1, dest);          // n1 is empty - a normal two-segment reach
+
+        assertTrue(me.COMP_Calc_Distances(n0, n1, dest, seed(b1), 5),
+                "the AI may route a road across an empty vertex");
     }
 }
