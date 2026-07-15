@@ -119,26 +119,50 @@ public class GameEndPntGraphJDialog extends javax.swing.JDialog
 
             g2.setStroke(saveStroke);
 
-            // Draw points Graph
-            g2.setStroke(new BasicStroke (3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0F, null, 0.F));
+            // Draw points Graph.
+            //
+            // Each player's line is stroked in its own colour, but the panel
+            // background is white - so a white player would otherwise be
+            // invisible. Draw a slightly wider dark outline under every line
+            // first; that makes the white player show up and improves contrast
+            // for all the light colours.
+            Stroke outlineStroke = new BasicStroke (5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0F, null, 0.F);
+            Stroke lineStroke    = new BasicStroke (3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0F, null, 0.F);
 
             GameRules.StatsRound p = gameStats.getFirst();
+            int n = gameStats.size();
             for (int pIdx = 0; pIdx < p.plyrs.size(); pIdx++)
             {
-                float xLast = xT;
-                float yLast = yB;
+                // Collect the polyline points, starting from the bottom-left origin.
+                int[]  xs  = new int[n + 1];
+                int[]  ys  = new int[n + 1];
+                Color  col = p.plyrs.get(pIdx).col;
 
+                xs[0] = xT;
+                ys[0] = (int)yB;
+
+                float xLast = xT;
+                int   k     = 1;
                 for (GameRules.StatsRound pi:gameStats)
                 {
                     GameRules.StatsPlyr pr = pi.plyrs.get(pIdx);
 
-                    g2.setColor(pr.col);
-                    g2.drawLine ((int)xLast, (int)yLast,
-                                 (int)(xLast + xInc ), (int) ((yB - yInc * (float)pr.tpnts) - (float)(pIdx)));
+                    xs[k] = (int)(xLast + xInc);
+                    ys[k] = (int)((yB - yInc * (float)pr.tpnts) - (float)(pIdx));
+                    col   = pr.col;
 
-                    yLast = yB  - (yInc * (float)pr.tpnts) - (float)(pIdx);
                     xLast += xInc;
+                    k++;
                 }
+
+                // Dark outline first, then the player's colour on top.
+                g2.setStroke(outlineStroke);
+                g2.setColor(Color.darkGray);
+                g2.drawPolyline(xs, ys, n + 1);
+
+                g2.setStroke(lineStroke);
+                g2.setColor(col);
+                g2.drawPolyline(xs, ys, n + 1);
             }
         }
     }
