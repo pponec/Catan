@@ -73,6 +73,12 @@ public class GameBoardJPanel extends javax.swing.JPanel
     CatanGraphBase hlLastSelObj    = null;
     CatanGraphBase hlPopMenuObj    = null;
 
+    // ----- Flash game board changes -----
+    // The freshly changed object (building/road/robbed tile) that is currently
+    // being flashed, and whether the flash highlight is drawn in this frame.
+    CatanGraphBase blinkObj        = null;
+    boolean        blinkOn         = false;
+
     // ----- Quicken board refresh/updates -----
     BufferedImage saveTileBG       = null;
     
@@ -1354,46 +1360,72 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
         this.saveTileBG = null;
     }
             
-    // The build/robber "blink" highlight used to run an artificial loop (~700 ms)
-    // that alternately drew the old and new board straight into getGraphics() off
-    // the EDT. That was pure delay and, because it painted outside the normal
-    // paint cycle, the board was left corrupted when the window was resized during
-    // it. The model is already updated by the time these are called, so we simply
-    // request a normal repaint on the EDT - no delay, no off-EDT drawing.
+    // Kept so existing callers stay valid; the flash no longer needs a captured
+    // background image - it is drawn as an overlay inside the normal paint cycle.
     public void blinkBGInit ()
     {
-        // Nothing to capture any more; kept so existing callers stay valid.
     }
 
-    // Repaint only the area that has changed.
+    // Flash the freshly changed object (settlement/city/road, or a robbed tile).
+    //
+    // Instead of drawing straight into getGraphics() off the paint cycle (which
+    // left the board corrupted when the window was resized mid-animation), we
+    // toggle a highlight overlay on the changed object and repaint just its area
+    // synchronously with paintImmediately(). Every frame is a real paint at the
+    // current geometry, so a resize during the flash repaints cleanly. Like the
+    // dice-roll animation, this blocks the (single) game thread with short pauses.
     public void blinkBGObj (long time, CatanGraphBase obj, Rectangle robberErase)
     {
         if (this.gameWindow.gameRules.gameCompTesting != false)
             return;
 
-        Rectangle objArea = null;
+        try
+        {
+            Rectangle objArea = null;
 
-        // determine update area
-        if (obj instanceof BuildPoint)
-        {
-            objArea = ((BuildPoint)obj).calcBuildSize();
-        }
-        else if (obj instanceof Road)
-        {
-            objArea = ((Road)obj).calcBuildSize();
-        }
-        else if (obj instanceof Tile)
-        {
-            objArea = ((Tile)obj).getBounds();
-        }
+            // determine update area
+            if (obj instanceof BuildPoint)
+            {
+                objArea = ((BuildPoint)obj).calcBuildSize();
+            }
+            else if (obj instanceof Road)
+            {
+                objArea = ((Road)obj).calcBuildSize();
+            }
+            else if (obj instanceof Tile)
+            {
+                objArea = ((Tile)obj).getBounds();
+            }
+            else
+                return;
 
-        if (robberErase != null)
+            // Clear any stale drawing (e.g. the robber's previous tile) once.
+            if (robberErase != null)
+            {
+                this.paintImmediately(robberErase);
+            }
+
+            this.blinkObj = obj;
+
+            long currentTime = System.currentTimeMillis();
+            long endTime     = currentTime + time;
+
+            while (currentTime < endTime)
+            {
+                this.blinkOn = true;
+                this.paintImmediately(objArea);
+                pause (25);
+                this.blinkOn = false;
+                this.paintImmediately(objArea);
+                pause (25);
+                currentTime = System.currentTimeMillis();
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        finally
         {
-            this.repaint(robberErase);
-        }
-        if (objArea != null)
-        {
-            this.repaint(objArea);
+            this.blinkObj = null;
+            this.blinkOn  = false;
+            this.repaint();
         }
     }
 
@@ -1598,12 +1630,29 @@ private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fo
                 {
                     ((Road)hlLastSelObj).highLightSelectedDraw ((Graphics2D)g, Color.white);
                 }
-                else if (hlLastSelObj instanceof Tile) // Move Robber ... 
+                else if (hlLastSelObj instanceof Tile) // Move Robber ...
                 {
                     ((Tile)hlLastSelObj).highLightSelectedDraw ((Graphics2D)g, Color.white);
                 }
             }
-        } catch (Exception e) { e.printStackTrace(); }        
+
+            // Flash overlay for a freshly changed object (see blinkBGObj).
+            if ((blinkOn != false) && (blinkObj != null))
+            {
+                if (blinkObj instanceof BuildPoint)
+                {
+                    ((BuildPoint)blinkObj).highLightSelectedDraw ((Graphics2D)g, Color.white);
+                }
+                else if (blinkObj instanceof Road)
+                {
+                    ((Road)blinkObj).highLightSelectedDraw ((Graphics2D)g, Color.white);
+                }
+                else if (blinkObj instanceof Tile)
+                {
+                    ((Tile)blinkObj).highLightSelectedDraw ((Graphics2D)g, Color.white);
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables

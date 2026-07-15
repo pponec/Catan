@@ -1982,7 +1982,7 @@ public class Player
 
                 if (this.type == PlayerTypes.COMPUTER)
                 {
-                    this.gameBoard.blinkBGObj(700, (CatanGraphBase) item, null);
+                    this.gameBoard.blinkBGObj(175, (CatanGraphBase) item, null);
                 }
                 break;
 
@@ -2013,7 +2013,7 @@ public class Player
 
                 if (this.type == PlayerTypes.COMPUTER)
                 {
-                    this.gameBoard.blinkBGObj(700, (CatanGraphBase) item, null);
+                    this.gameBoard.blinkBGObj(175, (CatanGraphBase) item, null);
                 }
                 break;
 
@@ -2044,7 +2044,7 @@ public class Player
 
                 if (this.type == PlayerTypes.COMPUTER)
                 {
-                    this.gameBoard.blinkBGObj(700, (CatanGraphBase) item, null);
+                    this.gameBoard.blinkBGObj(175, (CatanGraphBase) item, null);
                 }
                 break;
 
@@ -3097,7 +3097,7 @@ this.gameBoard.clearHighlightAssist();
 
         this.gameBoard.clrDblBuffCache();
         java.awt.Rectangle lastRobberArea = (lastRobberTile != null) ? lastRobberTile.getBounds() : null;
-        this.gameBoard.blinkBGObj(700, (CatanGraphBase) bestPick.t, lastRobberArea);
+        this.gameBoard.blinkBGObj(175, (CatanGraphBase) bestPick.t, lastRobberArea);
         this.gameBoard.repaint();
 
         if (pickPlyr != null)

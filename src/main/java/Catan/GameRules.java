@@ -574,7 +574,7 @@ thisPlayer.newDevCards.add (new ResourceCard(ResCardTypes.DEV_ROADBUILD));
                     this.gameWindow.gameBoard.blinkBGInit();                   
                     Tile t = this.gameWindow.gameBoard.setRobberInitLoc ();
                     this.gameWindow.gameBoard.clrDblBuffCache();
-                    this.gameWindow.gameBoard.blinkBGObj(700, (CatanGraphBase)t, null);                      
+                    this.gameWindow.gameBoard.blinkBGObj(175, (CatanGraphBase)t, null);                      
                    
                     this.addStatsRound ();
                     setGamePhase(GamePhaseTypes.ROLLDICE);
