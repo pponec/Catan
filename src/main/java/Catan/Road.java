@@ -52,17 +52,25 @@ public class Road extends CatanGraphBase
         return null;
     }
     
+    // Returns the end point of this road from which player p may extend its road
+    // network, or null if there is none. A settlement/city owned by anybody else
+    // breaks the network at that vertex, so such an end point must be skipped:
+    // p may own a road on one side of a foreign building, but it can never carry
+    // a new road out the other side.
     public BuildPoint getJoinedRoadBP (Player p)
     {
         for (BuildPoint b:buildJoins)
         {
+            if ((b.owner != null) && (b.owner != p))
+                continue;
+
             for (Road r:b.roadJoins)
             {
                 if (r.owner == p)
                     return b;
             }
-        }           
-        
+        }
+
         return null;
     }
             

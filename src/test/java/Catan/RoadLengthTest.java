@@ -2,6 +2,7 @@ package Catan;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.LinkedList;
@@ -368,5 +369,51 @@ class RoadLengthTest
 
         assertTrue(me.COMP_Calc_Distances(n0, n1, dest, seed(b1), 5),
                 "the AI may route a road across an empty vertex");
+    }
+
+    // ----- AI road anchor: never extend out of a foreign building ------------
+    //
+    // getJoinedRoadBP picks the end point the AI extends its next road from. An
+    // end point carrying somebody else's settlement/city is not usable, however
+    // many of the player's own roads run into it: the building breaks the network
+    // there, so a road built out the far side would be an illegal placement.
+
+    @Test
+    void anchorSkipsEndPointWithForeignBuilding()
+    {
+        Player me = newPlayer();
+        Player opp = new Player();
+        BuildPoint blocked = point(), free = point();
+        Road mine = edge(blocked, free, me);   // blocked end comes first in buildJoins
+        blocked.owner = opp;           // opponent settlement on one end of our road
+
+        assertEquals(free, mine.getJoinedRoadBP(me),
+                "the AI must extend from the open end, not through the opponent's building");
+    }
+
+    @Test
+    void anchorIsNullWhenEveryEndPointIsBlocked()
+    {
+        Player me = newPlayer();
+        Player opp = new Player();
+        BuildPoint b1 = point(), b2 = point();
+        Road mine = edge(b1, b2, me);
+        b1.owner = opp;                // boxed in by foreign buildings at both ends
+        b2.owner = opp;
+
+        assertNull(mine.getJoinedRoadBP(me),
+                "a road boxed in by foreign buildings offers nowhere to extend");
+    }
+
+    @Test
+    void anchorAcceptsEndPointWithOwnBuilding()
+    {
+        Player me = newPlayer();
+        BuildPoint own = point(), far = point();
+        Road mine = edge(own, far, me);
+        own.owner = me;                // our own settlement never blocks us
+
+        assertEquals(own, mine.getJoinedRoadBP(me),
+                "the AI may extend out of its own settlement");
     }
 }
