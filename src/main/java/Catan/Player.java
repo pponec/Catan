@@ -1311,12 +1311,16 @@ public class Player
     //               otherwise a list of filled RoadInfo objects are returned.
     public int calcRoadLens(LinkedList<RoadInfo> endRoadPoints)
     {
-        // determine road end points (roads connected to null or a different owner road points)
         // allocate memory as needed...
         if (endRoadPoints == null)
         {
             endRoadPoints = new LinkedList<RoadInfo>();
         }
+
+        // Determine road end points (empty road slots next to our network) and the
+        // connected road group reachable from each. These are used by the AI's road
+        // planning (buildDiffRoadGroups); they are NOT used to measure the longest
+        // road below - see the note there.
         for (Road r : this.builtRoadObjs)
         {
             for (BuildPoint bp : r.buildJoins)
@@ -1325,82 +1329,39 @@ public class Player
                 {
                     if (fr.owner == null)
                     {
-                        endRoadPoints.add(new RoadInfo(fr));
+                        RoadInfo ri = new RoadInfo(fr);
+                        ri.roadLen = roadLen(fr, null, this, ri.roadGroup, new LinkedList<Road>());
+                        endRoadPoints.add(ri);
                     }
                 }
             }
         }
 
-        // Calculate road lengths for each end Point.
+        // Measure the longest road (the longest trail over our own road edges).
+        //
+        // Every trail ends on one of our roads, so we must try *every* owned road as
+        // a trail end - from both of its build points - and keep the best. It is not
+        // enough to start only from the empty "tip" slots next to the network: when
+        // the longest trail's two endpoints are both interior vertices whose three
+        // incident roads are all owned (which happens once the network contains
+        // loops, e.g. two loops joined by a run), neither endpoint has an adjacent
+        // empty slot, so a tip-only search never starts there and under-counts the
+        // road - handing the Longest Road card to the wrong player. Iterating over
+        // all owned roads also naturally covers closed loops and runs whose ends are
+        // boxed in by foreign buildings. roadLen() does a full back-tracking DFS that
+        // never reuses a road and never crosses a foreign settlement/city, so this is
+        // an exact longest-trail search.
         int maxRLen = 0;
-        for (RoadInfo ri : endRoadPoints)
+        for (Road start : this.builtRoadObjs)
         {
-            // ri.road.debugHightlight (this.gameBoard.getGraphics()); // *** debug  Highlight end road segments ***
-            ri.roadLen = roadLen(ri.road, null, this, ri.roadGroup, new LinkedList<Road>());
-
-            // Dump Road info ....
-            // Debug ("calcRoadLens:" + this.name + " obj:" + ri.road.toString() + " Road Len = " + ri.roadLen, DebugLevel.COMPLETE);
-            if (ri.roadLen > maxRLen)
-            {
-                maxRLen = ri.roadLen;
-            }
-        }
-
-        // The search above only starts from empty "tip" segments next to our network.
-        // A road component with no such tip - a closed loop, or a run whose both ends
-        // are boxed in by foreign roads - is never reached and would score 0. Collect
-        // the roads already covered above, then measure any leftover component directly
-        // by treating each of its roads as a trail end.
-        LinkedList<Road> covered = new LinkedList<Road>();
-        for (RoadInfo ri : endRoadPoints)
-        {
-            for (Road r : ri.roadGroup)
-            {
-                if (covered.contains(r) == false)
-                {
-                    covered.add(r);
-                }
-            }
-        }
-
-        for (Road r : this.builtRoadObjs)
-        {
-            if (covered.contains(r))
-            {
-                continue;
-            }
-
-            // Discover the whole component reachable from r. The DFS never crosses
-            // a foreign building, so this is exactly one continuous-road group.
-            LinkedList<Road> component = new LinkedList<Road>();
-            component.add(r);
-            for (BuildPoint bp : r.buildJoins)
+            for (BuildPoint bp : start.buildJoins)
             {
                 LinkedList<Road> path = new LinkedList<Road>();
-                path.add(r);
-                roadLen(r, bp, this, component, path);
-            }
-
-            // The longest trail must start at one of the component's roads, so try
-            // every road as a trail end (from both build points) and keep the best.
-            // Starting from a middle road would only yield one arm, not their sum.
-            for (Road start : component)
-            {
-                if (covered.contains(start))
+                path.add(start);
+                int len = roadLen(start, bp, this, null, path);
+                if (len > maxRLen)
                 {
-                    continue;
-                }
-                covered.add(start);
-
-                for (BuildPoint bp : start.buildJoins)
-                {
-                    LinkedList<Road> path = new LinkedList<Road>();
-                    path.add(start);
-                    int len = roadLen(start, bp, this, null, path);
-                    if (len > maxRLen)
-                    {
-                        maxRLen = len;
-                    }
+                    maxRLen = len;
                 }
             }
         }

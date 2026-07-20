@@ -317,6 +317,86 @@ class RoadLengthTest
         assertEquals(5, me.calcRoadLens(null));
     }
 
+    // ----- loops WITH an open tip: the tip must not fool the search ----------
+    //
+    // These are the real regression cases for the wrong Longest Road award. When
+    // a looping network also has an empty tip, the old code treated that whole
+    // component as "covered" by the tip search and skipped the loop-aware
+    // fallback - yet the tip search on its own starts the DFS only from the tip's
+    // vertex and cannot round two loops. The longest road's two ends then sit on
+    // interior vertices (all three of their roads owned, so no tip of their own),
+    // which is exactly where the search now must be able to begin. Each of these
+    // scores strictly less under the old tip-only path than the true length here.
+
+    /**
+     * The dumbbell from {@link #twoLoopsJoinedByABridgeCountSeven}, but now a loop
+     * corner also carries an empty tip. The true longest road still rounds both
+     * loops through the bridge (3 + 1 + 3 = 7); its ends are the two bridge
+     * anchors, neither of which has a tip. Starting the DFS only from the tip's
+     * corner reaches just 6, so the tip must not short-circuit the search.
+     */
+    @Test
+    void twoLoopsJoinedByABridgeWithATipStillCountSeven()
+    {
+        Player me = newPlayer();
+        BuildPoint a0 = point(), aCorner = point(), a2 = point();
+        me.builtRoadObjs.add(edge(a0, aCorner, me));   // loop A
+        me.builtRoadObjs.add(edge(aCorner, a2, me));
+        me.builtRoadObjs.add(edge(a2, a0, me));
+
+        BuildPoint b0 = point(), b1 = point(), b2 = point();
+        me.builtRoadObjs.add(edge(a0, b0, me));        // bridge
+        me.builtRoadObjs.add(edge(b0, b1, me));        // loop B
+        me.builtRoadObjs.add(edge(b1, b2, me));
+        me.builtRoadObjs.add(edge(b2, b0, me));
+
+        openEnd(aCorner);                              // empty tip on a loop corner
+
+        assertEquals(7, me.calcRoadLens(null));
+    }
+
+    /**
+     * Two six-segment rings joined by a bridge, with a tip on one ring: rounding
+     * both rings across the bridge is 6 + 1 + 6 = 13. Again both ends of that run
+     * are the tipless bridge anchors.
+     */
+    @Test
+    void twoHexLoopsJoinedByABridgeWithATipCountThirteen()
+    {
+        Player me = newPlayer();
+        BuildPoint[] a = { point(), point(), point(), point(), point(), point() };
+        loop(me, a);                                   // hex ring A
+        BuildPoint[] b = { point(), point(), point(), point(), point(), point() };
+        loop(me, b);                                   // hex ring B
+        me.builtRoadObjs.add(edge(a[0], b[0], me));    // bridge
+
+        openEnd(a[2]);                                 // empty tip on ring A
+
+        assertEquals(13, me.calcRoadLens(null));
+    }
+
+    /**
+     * A figure eight (two triangles sharing one vertex) that also has an empty
+     * tip on one corner. The single edge-distinct trail through the shared vertex
+     * still walks all six segments; the tip vertex is not one of its ends.
+     */
+    @Test
+    void figureEightWithATipStillCountsSix()
+    {
+        Player me = newPlayer();
+        BuildPoint c = point(), a1 = point(), a2 = point(), b1 = point(), b2 = point();
+        me.builtRoadObjs.add(edge(c, a1, me));   // loop A through c
+        me.builtRoadObjs.add(edge(a1, a2, me));
+        me.builtRoadObjs.add(edge(a2, c, me));
+        me.builtRoadObjs.add(edge(c, b1, me));   // loop B through c
+        me.builtRoadObjs.add(edge(b1, b2, me));
+        me.builtRoadObjs.add(edge(b2, c, me));
+
+        openEnd(a1);                             // empty tip on a loop corner
+
+        assertEquals(6, me.calcRoadLens(null));
+    }
+
     // ----- AI road planning: never route through a foreign building ----------
     //
     // COMP_Calc_Distances is the AI's road pathfinder. A road planned through an
